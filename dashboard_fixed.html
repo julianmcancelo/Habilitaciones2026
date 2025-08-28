@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es" class="bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Habilitaciones | Gestión de Transporte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-btn.active { color: #4f46e5; border-color: #4f46e5; background-color: #eef2ff; }
+        .sticky-header { position: sticky; top: 0; z-index: 30; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="{ isCreateModalOpen: false }">
+
+<header class="bg-white/95 backdrop-blur-lg shadow-sm border-b border-slate-200 sticky-header">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center gap-4">
+                <img src="https://www.lanus.gob.ar/logo-200.png" class="h-10" alt="Logo Lanús">
+                <h1 class="text-lg font-bold text-slate-800 hidden sm:block">Movilidad y Transporte</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-medium text-slate-600 hidden md:block">👤 Usuario Demo</span>
+                <a href="../logout.php" class="text-sm text-slate-500 hover:text-indigo-600 font-medium">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800">Panel de Habilitaciones</h2>
+            <p class="text-md text-slate-500 mt-1">Gestión centralizada de licencias y transportes.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="registrar_persona.php" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline">Persona</span>
+            </a>
+            <a href="registrar_vehiculo.php" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1-1h-1v6h1a1 1 0 001-1V7z" />
+                </svg>
+                <span class="hidden sm:inline">Vehículo</span>
+            </a>
+            <button type="button" @click="isCreateModalOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Nueva Habilitación</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-slate-200/80 p-5 flex items-center gap-5">
+            <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
+                <svg class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500 truncate">Habilitaciones Activas</p>
+                <p class="mt-1 text-3xl font-semibold text-slate-900">25</p>
+            </div>
+        </div>
+        <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-slate-200/80 p-5 flex items-center gap-5">
+            <div class="flex-shrink-0 bg-amber-100 rounded-full p-3">
+                <svg class="h-7 w-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500 truncate">En Trámite</p>
+                <p class="mt-1 text-3xl font-semibold text-slate-900">8</p>
+            </div>
+        </div>
+        <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-slate-200/80 p-5 flex items-center gap-5">
+            <div class="flex-shrink-0 bg-red-100 rounded-full p-3">
+                <svg class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500 truncate">Vencen en 30 días</p>
+                <p class="mt-1 text-3xl font-semibold text-slate-900">3</p>
+            </div>
+        </div>
+        <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-slate-200/80 p-5 flex items-center gap-5">
+            <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
+                <svg class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500 truncate">Obleas Pendientes</p>
+                <p class="mt-1 text-3xl font-semibold text-slate-900">2</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200/80">
+        <h3 class="text-xl font-bold text-slate-800 mb-4">Lista de Habilitaciones</h3>
+        <p class="text-slate-600">Aquí aparecería la tabla con las habilitaciones...</p>
+    </div>
+</main>
+
+<!-- Modal para Nueva Habilitación -->
+<div x-show="isCreateModalOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" @keydown.escape.window="isCreateModalOpen = false" x-cloak>
+    <div @click.away="isCreateModalOpen = false" x-show="isCreateModalOpen" x-transition class="relative bg-slate-50 w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl shadow-xl">
+        <form method="POST" action="index.php">
+            <input type="hidden" name="csrf_token" value="demo_token">
+            <input type="hidden" name="crear_nueva_habilitacion" value="1">
+            
+            <!-- Header del Modal -->
+            <div class="p-8 border-b border-slate-200">
+                <h2 class="text-3xl font-bold text-slate-800">Registrar Habilitación (Paso 1)</h2>
+                <p class="text-sm text-slate-500 mt-1">Ingrese los datos generales de la nueva licencia.</p>
+            </div>
+            
+            <!-- Contenido del Modal -->
+            <div class="p-8 space-y-10 flex-grow overflow-y-auto">
+                <!-- Datos Principales -->
+                <section>
+                    <h3 class="text-xl font-bold text-indigo-600 mb-6 border-b-2 border-indigo-200 pb-2">📄 Datos Principales</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                        <div>
+                            <label for="nro_licencia_modal" class="block text-sm font-medium text-slate-600 mb-1">N° de Licencia <span class="text-red-500">*</span></label>
+                            <input id="nro_licencia_modal" name="nro_licencia" required placeholder="Ej: 068-0001/25" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="expte_modal" class="block text-sm font-medium text-slate-600 mb-1">N° de Expediente <span class="text-red-500">*</span></label>
+                            <input id="expte_modal" name="expte" required placeholder="Ej: 4061-12345/2025" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="tipo_transporte_modal" class="block text-sm font-medium text-slate-600 mb-1">Tipo de Transporte <span class="text-red-500">*</span></label>
+                            <select id="tipo_transporte_modal" name="tipo_transporte" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="Escolar">Escolar</option>
+                                <option value="Remis">Remis</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="resolucion_modal" class="block text-sm font-medium text-slate-600 mb-1">Resolución</label>
+                            <input id="resolucion_modal" name="resolucion" placeholder="Resolución legal asociada" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vigencia y Estado -->
+                <section>
+                    <h3 class="text-xl font-bold text-indigo-600 mb-6 border-b-2 border-indigo-200 pb-2">⏱️ Vigencia y Estado</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                        <div>
+                            <label for="vigencia_inicio_modal" class="block text-sm font-medium text-slate-600 mb-1">Vigencia desde <span class="text-red-500">*</span></label>
+                            <input id="vigencia_inicio_modal" type="date" name="vigencia_inicio" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="vigencia_fin_modal" class="block text-sm font-medium text-slate-600 mb-1">Vigencia hasta <span class="text-red-500">*</span></label>
+                            <input id="vigencia_fin_modal" type="date" name="vigencia_fin" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="tipo_modal" class="block text-sm font-medium text-slate-600 mb-1">Tipo de Trámite <span class="text-red-500">*</span></label>
+                            <select id="tipo_modal" name="tipo" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="HABILITACION">Habilitación</option>
+                                <option value="RENOVACION">Renovación</option>
+                                <option value="CAMBIO MATERIAL">Cambio de Material</option>
+                                <option value="CAMBIO TITULAR">Cambio de Titular</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="estado_modal" class="block text-sm font-medium text-slate-600 mb-1">Estado Inicial <span class="text-red-500">*</span></label>
+                            <select id="estado_modal" name="estado" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="INICIADO">INICIADO</option>
+                                <option value="EN TRAMITE">EN TRÁMITE</option>
+                                <option value="HABILITADO">HABILITADO</option>
+                                <option value="NO HABILITADO">NO HABILITADO</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Observaciones -->
+                <section>
+                    <h3 class="text-xl font-bold text-indigo-600 mb-6 border-b-2 border-indigo-200 pb-2">📝 Notas Adicionales</h3>
+                    <div>
+                        <label for="observaciones_modal" class="block text-sm font-medium text-slate-600 mb-1">Observaciones</label>
+                        <textarea id="observaciones_modal" name="observaciones" rows="3" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Añadir cualquier nota o detalle relevante..."></textarea>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Footer del Modal -->
+            <div class="bg-slate-100 px-8 py-4 border-t border-slate-200 flex justify-end gap-4 sticky bottom-0">
+                <button type="button" @click="isCreateModalOpen = false" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold py-2 px-5 rounded-lg transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg shadow-md">
+                    Registrar y Continuar →
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Alpine.js cargado y modal configurado');
+});
+</script>
+
+</body>
+</html>

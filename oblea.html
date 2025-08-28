@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Imprimir Oblea</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <div id="loading" class="text-center p-10">
+        <p>Cargando datos para la impresión...</p>
+    </div>
+
+    <div id="oblea-content" class="hidden m-4 border-2 border-dashed border-slate-400 p-4 font-sans">
+        <div class="text-center mb-4">
+            <h1 class="text-xl font-bold">MUNICIPALIDAD DE LANÚS</h1>
+            <h2 class="text-lg font-semibold">SECRETARÍA DE SEGURIDAD Y MOVILIDAD SUSTENTABLE</h2>
+            <p class="text-md">HABILITACIÓN DE TRANSPORTE</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            <div>
+                <p class="font-bold">N° HABILITACIÓN:</p>
+                <p id="oblea-nro_licencia" class="text-lg font-mono"></p>
+            </div>
+            <div>
+                <p class="font-bold">TIPO:</p>
+                <p id="oblea-tipo_transporte" class="text-lg"></p>
+            </div>
+            <div class="col-span-2">
+                <p class="font-bold">TITULAR:</p>
+                <p id="oblea-titular"></p>
+            </div>
+            <div>
+                <p class="font-bold">DOMINIO:</p>
+                <p id="oblea-dominio" class="font-mono"></p>
+            </div>
+            <div>
+                <p class="font-bold">MARCA/MODELO:</p>
+                <p id="oblea-modelo"></p>
+            </div>
+            <div class="col-span-2 text-center mt-4">
+                <p class="font-bold">VÁLIDO HASTA:</p>
+                <p id="oblea-vigencia_fin" class="text-2xl font-bold bg-slate-200 py-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loading = document.getElementById('loading');
+            const obleaContent = document.getElementById('oblea-content');
+
+            try {
+                const habilitacionId = await window.electronAPI.getDetailsId();
+                const response = await fetch(`http://apis.transportelanus.com.ar/api/details.php?id=${habilitacionId}`);
+                const data = await response.json();
+
+                if (!data.success) throw new Error(data.message);
+
+                const { details, titular, vehiculo } = data;
+
+                const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-AR') : 'N/A';
+                const formatText = (text) => text || 'N/A';
+
+                document.getElementById('oblea-nro_licencia').textContent = formatText(details.nro_licencia);
+                document.getElementById('oblea-tipo_transporte').textContent = formatText(details.tipo_transporte);
+                document.getElementById('oblea-titular').textContent = formatText(titular?.nombre);
+                document.getElementById('oblea-dominio').textContent = formatText(vehiculo?.dominio);
+                document.getElementById('oblea-modelo').textContent = `${formatText(vehiculo?.marca)} ${formatText(vehiculo?.modelo)}`;
+                document.getElementById('oblea-vigencia_fin').textContent = formatDate(details.vigencia_fin);
+
+                loading.classList.add('hidden');
+                obleaContent.classList.remove('hidden');
+
+                // Una vez que los datos están cargados, se manda la señal para imprimir.
+                window.electronAPI.readyToPrint();
+
+            } catch (error) {
+                console.error('Error al cargar datos de la oblea:', error);
+                loading.textContent = 'Error al cargar los datos. Cierre esta ventana e intente de nuevo.';
+            }
+        });
+    </script>
+
+</body>
+</html>
