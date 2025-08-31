@@ -10,7 +10,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .tab-btn.active { color: #4f46e5; border-color: #4f46e5; background-color: #eef2ff; }
+        .tab-btn.active { color: #4f46e5; border-color: #4f46e5; }
         .sticky-header { position: sticky; top: 0; z-index: 30; }
         .tab-content { display: none; } .tab-content.active { display: block; }
         [x-cloak] { display: none !important; }
@@ -57,6 +57,20 @@
 
     <!-- Contenido Principal -->
     <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-slate-200/80">
+        <!-- Tabs de Navegación -->
+        <div class="border-b border-slate-200 mb-4">
+            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                <button id="tab-todos" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+                    Todos
+                </button>
+                <button id="tab-escolar" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 border-transparent">
+                    Transporte Escolar
+                </button>
+                <button id="tab-remis" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 border-transparent">
+                    Remis
+                </button>
+            </nav>
+        </div>
         <!-- Tabla de Habilitaciones -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
@@ -83,7 +97,7 @@
 <!-- Modal para Nueva Habilitación -->
 <div x-show="isCreateModalOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" @keydown.escape.window="isCreateModalOpen = false" x-cloak>
     <div @click.away="isCreateModalOpen = false" x-show="isCreateModalOpen" x-transition class="relative bg-slate-50 w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl shadow-xl">
-        <form method="POST" action="index.php">
+        <form id="create-form" method="POST" action="index.php">
             <input type="hidden" name="csrf_token" value="demo_token">
             <input type="hidden" name="crear_nueva_habilitacion" value="1">
             
@@ -98,25 +112,27 @@
                 <!-- Datos Principales -->
                 <section>
                     <h3 class="text-xl font-bold text-indigo-600 mb-6 border-b-2 border-indigo-200 pb-2">📄 Datos Principales</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="nro_licencia_modal" class="block text-sm font-medium text-slate-600 mb-1">N° de Licencia <span class="text-red-500">*</span></label>
-                            <input id="nro_licencia_modal" name="nro_licencia" required placeholder="Ej: 068-0001/25" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="nro_licencia_modal" class="block text-sm font-medium text-gray-700">N° Licencia <span class="text-red-500">*</span></label>
+                            <input type="text" id="nro_licencia_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                         </div>
                         <div>
-                            <label for="expte_modal" class="block text-sm font-medium text-slate-600 mb-1">N° de Expediente <span class="text-red-500">*</span></label>
-                            <input id="expte_modal" name="expte" required placeholder="Ej: 4061-12345/2025" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="expte_modal" class="block text-sm font-medium text-gray-700">N° Expediente <span class="text-red-500">*</span></label>
+                            <input type="text" id="expte_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="tipo_transporte_modal" class="block text-sm font-medium text-slate-600 mb-1">Tipo de Transporte <span class="text-red-500">*</span></label>
-                            <select id="tipo_transporte_modal" name="tipo_transporte" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <select id="tipo_transporte_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                                 <option value="Escolar">Escolar</option>
                                 <option value="Remis">Remis</option>
                             </select>
                         </div>
                         <div>
-                            <label for="resolucion_modal" class="block text-sm font-medium text-slate-600 mb-1">Resolución</label>
-                            <input id="resolucion_modal" name="resolucion" placeholder="Resolución legal asociada" class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="resolucion_modal" class="block text-sm font-medium text-gray-700">Resolución</label>
+                            <input type="text" id="resolucion_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                     </div>
                 </section>
@@ -135,20 +151,20 @@
                         </div>
                         <div>
                             <label for="tipo_modal" class="block text-sm font-medium text-slate-600 mb-1">Tipo de Trámite <span class="text-red-500">*</span></label>
-                            <select id="tipo_modal" name="tipo" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="HABILITACION">Habilitación</option>
-                                <option value="RENOVACION">Renovación</option>
-                                <option value="CAMBIO MATERIAL">Cambio de Material</option>
-                                <option value="CAMBIO TITULAR">Cambio de Titular</option>
+                            <select id="tipo_modal" name="tipo_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                                <option value="Habilitación">Habilitación</option>
+                                <option value="Renovación">Renovación</option>
+                                <option value="Cambio de Material">Cambio de Material</option>
+                                <option value="Cambio de Titular">Cambio de Titular</option>
                             </select>
                         </div>
                         <div>
                             <label for="estado_modal" class="block text-sm font-medium text-slate-600 mb-1">Estado Inicial <span class="text-red-500">*</span></label>
-                            <select id="estado_modal" name="estado" required class="block w-full rounded-md border-slate-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="INICIADO">INICIADO</option>
-                                <option value="EN TRAMITE">EN TRÁMITE</option>
-                                <option value="HABILITADO">HABILITADO</option>
-                                <option value="NO HABILITADO">NO HABILITADO</option>
+                            <select id="estado_modal" name="estado_modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                                <option value="INICIADO">Iniciado</option>
+                                <option value="EN TRÁMITE">En trámite</option>
+                                <option value="HABILITADO">Habilitado</option>
+                                <option value="NO HABILITADO">No Habilitado</option>
                             </select>
                         </div>
                     </div>
@@ -178,24 +194,23 @@
 </div>
 
 <script>
-    // 1. Función central para cargar y renderizar los datos del dashboard
-    function loadDashboardData(dashboard) {
-        // Poblar KPIs
-        const kpis = dashboard.kpis;
-        document.getElementById('kpi_activas').textContent = kpis.activas || 0;
-        document.getElementById('kpi_en_tramite').textContent = kpis.en_tramite || 0;
-        document.getElementById('kpi_por_vencer').textContent = kpis.por_vencer || 0;
-        document.getElementById('kpi_obleas').textContent = kpis.obleas_pendientes || 0;
+    let allHabilitaciones = [];
 
-        // Poblar tabla de habilitaciones
+    // 1. Renderiza la tabla de habilitaciones con un filtro opcional
+    function renderHabilitaciones(filter = 'todos') {
         const tableBody = document.getElementById('habilitaciones-table-body');
         tableBody.innerHTML = ''; // Limpiar contenido previo
 
-        if (dashboard.habilitaciones && dashboard.habilitaciones.length > 0) {
-            dashboard.habilitaciones.forEach(h => {
+        const filteredData = allHabilitaciones.filter(h => {
+            if (filter === 'todos') return true;
+            if (filter === 'escolar') return h.tipo_transporte === 'Escolar';
+            if (filter === 'remis') return h.tipo_transporte === 'Remis';
+            return false;
+        });
+
+        if (filteredData.length > 0) {
+            filteredData.forEach(h => {
                 const row = document.createElement('tr');
-                
-                // Lógica de estado mejorada
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
                 const expiryDate = new Date(h.vigencia_fin + 'T00:00:00');
@@ -235,7 +250,8 @@
                              x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
                              class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
                             <div class="py-1" role="menu" aria-orientation="vertical">
-                                <a href="#" @click.prevent="verDetalles(${h.habilitacion_id})" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" role="menuitem">Ver Detalles</a>
+                                <a href="#" @click.prevent="verCredencial(${h.habilitacion_id})" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" role="menuitem">Ver Credencial</a>
+                                <a href="#" @click.prevent="editarHabilitacion(${h.habilitacion_id})" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" role="menuitem">Editar</a>
                                 <a href="#" @click.prevent="imprimirOblea(${h.habilitacion_id})" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" role="menuitem">Imprimir Oblea</a>
                                 <a href="#" @click.prevent="renovarHabilitacion(${h.habilitacion_id})" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" role="menuitem">Renovar</a>
                             </div>
@@ -244,8 +260,57 @@
                 `;
                 tableBody.appendChild(row);
             });
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-slate-500">No hay habilitaciones que coincidan con el filtro seleccionado.</td></tr>';
         }
     }
+
+    // 2. Función para cargar los datos iniciales del dashboard
+    function loadDashboardData(dashboard) {
+        // Poblar KPIs
+        const kpis = dashboard.kpis;
+        document.getElementById('kpi_activas').textContent = kpis.activas || 0;
+        document.getElementById('kpi_en_tramite').textContent = kpis.en_tramite || 0;
+        document.getElementById('kpi_por_vencer').textContent = kpis.por_vencer || 0;
+        document.getElementById('kpi_obleas').textContent = kpis.obleas_pendientes || 0;
+
+        // Guardar datos y renderizar tabla inicial
+        allHabilitaciones = dashboard.habilitaciones || [];
+        renderHabilitaciones('todos');
+    }
+
+    // 3. Lógica de las solapas (Tabs)
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = {
+            todos: document.getElementById('tab-todos'),
+            escolar: document.getElementById('tab-escolar'),
+            remis: document.getElementById('tab-remis')
+        };
+
+        function setActiveTab(selectedTab) {
+            Object.values(tabs).forEach(tab => {
+                tab.classList.remove('active', 'text-indigo-600');
+                tab.classList.add('text-slate-500', 'hover:text-slate-700', 'border-transparent');
+            });
+            tabs[selectedTab].classList.add('active', 'text-indigo-600');
+            tabs[selectedTab].classList.remove('text-slate-500', 'hover:text-slate-700', 'border-transparent');
+        }
+
+        tabs.todos.addEventListener('click', () => {
+            setActiveTab('todos');
+            renderHabilitaciones('todos');
+        });
+
+        tabs.escolar.addEventListener('click', () => {
+            setActiveTab('escolar');
+            renderHabilitaciones('escolar');
+        });
+
+        tabs.remis.addEventListener('click', () => {
+            setActiveTab('remis');
+            renderHabilitaciones('remis');
+        });
+    });
 
     // 2. Carga inicial de datos al recibir el evento de login exitoso
     window.electronAPI.onLoginSuccess(({ user, dashboard }) => {
@@ -259,8 +324,17 @@
     });
 
     // --- MANEJADORES DE ACCIONES ---
+    function editarHabilitacion(id) {
+        window.electronAPI.openEditWindow(id);
+    }
+
     function verDetalles(id) {
         window.electronAPI.openDetailsWindow(id);
+    }
+
+    function verCredencial(id) {
+        // Usa el manejador genérico para abrir la ventana de la credencial
+        window.electronAPI.openWindow(`credencial.html?id=${id}`);
     }
 
     function imprimirOblea(id) {
@@ -275,7 +349,7 @@
             if (result.success) {
                 alert('¡Habilitación renovada con éxito!');
                 // Recargar los datos del dashboard para reflejar el cambio
-                const response = await fetch('http://localhost:8000/api/dashboard_data.php');
+                const response = await fetch('https://apis.transportelanus.com.ar/api/dashboard_data.php');
                 const freshDashboardData = await response.json();
                 if (freshDashboardData.success) {
                     loadDashboardData(freshDashboardData);
@@ -290,6 +364,70 @@
             alert('Ocurrió un error de comunicación al intentar renovar.');
         }
     }
+
+    // 4. Manejar el submit del formulario "Nueva Habilitación"
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('create-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Obtener valores del formulario
+            const payload = {
+                nro_licencia: document.getElementById('nro_licencia_modal')?.value?.trim(),
+                expte: document.getElementById('expte_modal')?.value?.trim(),
+                tipo_transporte: document.getElementById('tipo_transporte_modal')?.value,
+                resolucion: document.getElementById('resolucion_modal')?.value?.trim(),
+                vigencia_inicio: document.getElementById('vigencia_inicio_modal')?.value,
+                vigencia_fin: document.getElementById('vigencia_fin_modal')?.value,
+                tipo: document.getElementById('tipo_modal')?.value,
+                estado: document.getElementById('estado_modal')?.value,
+                observaciones: document.getElementById('observaciones_modal')?.value?.trim()
+            };
+
+            // Validación mínima
+            if (!payload.nro_licencia || !payload.expte || !payload.vigencia_inicio || !payload.vigencia_fin || !payload.tipo || !payload.estado || !payload.tipo_transporte) {
+                alert('Por favor complete los campos obligatorios.');
+                return;
+            }
+
+            try {
+                // Crear habilitación vía IPC/Electron -> API
+                const result = await window.electronAPI.createHabilitation(payload);
+                if (!result?.success) {
+                    alert(`No se pudo registrar la habilitación. ${result?.message || ''}`);
+                    return;
+                }
+
+                // Refrescar dashboard
+                try {
+                    const resp = await fetch('https://apis.transportelanus.com.ar/api/dashboard_data.php');
+                    const data = await resp.json();
+                    if (data.success) {
+                        loadDashboardData(data);
+                    }
+                } catch (err) {
+                    console.warn('No se pudo recargar el dashboard automáticamente:', err);
+                }
+
+                // Cerrar modal
+                document.body.__x && (document.body.__x.$data.isCreateModalOpen = false);
+
+                // Abrir detalles con el ID creado
+                const newId = result.id || result.habilitacion_id || result.data?.id;
+                if (newId) {
+                    window.electronAPI.openEditWindow(newId);
+                } else {
+                    alert('Habilitación creada, pero no se recibió un ID para abrir los detalles.');
+                }
+            } catch (error) {
+                console.error('Error al crear la habilitación:', error);
+                const errorMessage = error.message || 'Ocurrió un error desconocido.';
+                alert(`Error al registrar: ${errorMessage}`);
+            }
+        });
+    });
 </script>
 
 </body>

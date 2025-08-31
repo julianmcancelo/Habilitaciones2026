@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Vehículo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-100 p-4 sm:p-6 lg:p-8">
+
+    <div class="space-y-8 max-w-4xl mx-auto">
+        <section x-data="formAsignarVehiculo()" class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-[#891628]">🚗 Asignar Vehículo</h2>
+                    <p class="text-slate-500 mt-1">A la habilitación <strong class="text-slate-700">N° <span x-text="nro_licencia"></span></strong></p>
+                </div>
+            </div>
+
+            <form id="formularioAsignarVehiculo" @submit.prevent="confirmarAsignacion">
+                <input type="hidden" name="habilitacion_id" :value="habilitacionId">
+                <input type="hidden" name="vehiculo_id" x-model="vehiculo.id">
+                
+                <div class="relative mb-6">
+                    <label for="buscar" class="block text-sm font-medium text-slate-600 mb-1">1. Buscar vehículo existente (por Dominio)</label>
+                    <div class="relative">
+                        <input type="text" id="buscar" x-model="filtro" @input.debounce.300ms="buscar" @focus="sugerenciasVisible = true" autocomplete="off" placeholder="Escribir dominio para buscar..." class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#891628]">
+                        <div x-show="cargando" class="absolute top-0 right-0 h-full flex items-center pr-3">
+                            <svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </div>
+                    </div>
+                    <ul x-show="sugerenciasVisible && filtro.length > 1" @click.away="sugerenciasVisible = false" class="absolute w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto z-50">
+                        <template x-if="!cargando && resultados.length === 0"><li @click="prepararNuevo" class="px-4 py-3 hover:bg-green-50 cursor-pointer text-center"><span class="font-semibold text-green-700">+ Registrar '<span x-text="filtro"></span>' como nuevo vehículo</span></li></template>
+                        <template x-for="v in resultados" :key="v.id"><li @click="seleccionar(v)" class="px-4 py-3 hover:bg-red-50 cursor-pointer border-b"><p class="font-semibold text-slate-800" x-text="v.marca + ' ' + v.modelo"></p><p class="text-xs text-slate-500" x-text="'Dominio: ' + v.dominio"></p></li></template>
+                    </ul>
+                </div>
+
+                <div x-show="vehiculoSeleccionado" x-transition class="space-y-6 bg-slate-50 p-6 rounded-lg border border-slate-200 mb-6">
+                    <h3 class="text-xl font-bold text-[#891628] border-b pb-3 mb-4" x-text="vehiculo.id ? '2. Datos del Vehículo a Asignar' : '2. Completar Datos del Nuevo Vehículo'"></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Dominio</label><input type="text" name="dominio" x-model="vehiculo.dominio" class="w-full border-slate-300 rounded-lg shadow-sm bg-slate-100" :readonly="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Marca</label><input type="text" name="marca" x-model="vehiculo.marca" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Modelo</label><input type="text" name="modelo" x-model="vehiculo.modelo" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Tipo</label><input type="text" name="tipo" x-model="vehiculo.tipo" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Año</label><input type="number" name="ano" x-model="vehiculo.ano" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Asientos</label><input type="number" name="asientos" x-model="vehiculo.asientos" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-600 mb-1">Chasis</label><input type="text" name="chasis" x-model="vehiculo.chasis" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div><label class="block text-sm font-medium text-slate-600 mb-1">Motor</label><input type="text" name="motor" x-model="vehiculo.motor" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5 pt-4 mt-4 border-t">
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Aseguradora</label><input type="text" name="Aseguradora" x-model="vehiculo.Aseguradora" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Póliza</label><input type="text" name="poliza" x-model="vehiculo.poliza" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Vencimiento Póliza</label><input type="date" name="Vencimiento_Poliza" x-model="vehiculo.Vencimiento_Poliza" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        </div>
+                         <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 pt-4 mt-4 border-t">
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Fecha Inscripción Inicial</label><input type="date" name="inscripcion_inicial" x-model="vehiculo.inscripcion_inicial" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Vencimiento VTV</label><input type="date" name="Vencimiento_VTV" x-model="vehiculo.Vencimiento_VTV" class="w-full border-slate-300 rounded-lg shadow-sm" :disabled="vehiculo.id"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-slate-200 flex justify-end">
+                    <button type="submit" :disabled="!vehiculo.dominio || enviando" class="bg-[#891628] hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center">
+                        <span x-show="enviando" class="animate-spin h-5 w-5 mr-3"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                        <span x-text="enviando ? 'Asignando...' : 'Confirmar Asignación'"></span>
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script src="./asignar_vehiculo.js"></script>
+</body>
+</html>

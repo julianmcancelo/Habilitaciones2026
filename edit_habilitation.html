@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editando Habilitación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-100 p-4 sm:p-6 lg:p-8">
+
+<div class="space-y-8 max-w-7xl mx-auto">
+    
+    <!-- Sección de Datos Generales -->
+    <section id="general-data-section" class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200">
+        <h2 class="text-2xl font-bold text-[#891628] mb-6">📄 Datos Generales y Administrativos</h2>
+        <form id="form-generales">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <div><label for="nro_licencia" class="block text-sm font-medium text-slate-600 mb-1">N° Licencia</label><input id="nro_licencia" type="text" name="nro_licencia" class="block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div><label for="expte" class="block text-sm font-medium text-slate-600 mb-1">N° Expediente</label><input id="expte" type="text" name="expte" class="block w-full rounded-md border-slate-300 shadow-sm"></div>
+                <div><label for="resolucion" class="block text-sm font-medium text-slate-600 mb-1">Resolución</label><input id="resolucion" type="text" name="resolucion" class="block w-full rounded-md border-slate-300 shadow-sm"></div>
+                <div><label for="tipo_transporte" class="block text-sm font-medium text-slate-600 mb-1">Tipo de transporte</label><select id="tipo_transporte" name="tipo_transporte" class="block w-full rounded-md border-slate-300 shadow-sm"><option value="Escolar">Escolar</option><option value="Remis">Remis</option></select></div>
+                <div><label for="estado" class="block text-sm font-medium text-slate-600 mb-1">Estado</label><select id="estado" name="estado" class="block w-full rounded-md border-slate-300 shadow-sm"><option value="HABILITADO">Habilitado</option><option value="EN TRAMITE">En tramite</option><option value="VENCIDO">Vencido</option><option value="INICIADO">Iniciado</option></select></div>
+                <div><label for="tipo" class="block text-sm font-medium text-slate-600 mb-1">Tipo</label><select id="tipo" name="tipo" class="block w-full rounded-md border-slate-300 shadow-sm"><option value="Nueva Habilitacion">Nueva Habilitacion</option><option value="Renovacion">Renovacion</option><option value="Cambio de Material">Cambio de Material</option><option value="Cambio de titular">Cambio de titular</option></select></div>
+                <div><label for="vigencia_inicio" class="block text-sm font-medium text-slate-600 mb-1">Vigencia (Inicio)</label><input id="vigencia_inicio" type="date" name="vigencia_inicio" class="block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div><label for="vigencia_fin" class="block text-sm font-medium text-slate-600 mb-1">Vigencia (Fin)</label><input id="vigencia_fin" type="date" name="vigencia_fin" class="block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div class="lg:col-span-3"><label for="observaciones" class="block text-sm font-medium text-slate-600 mb-1">Observaciones</label><textarea id="observaciones" name="observaciones" rows="3" class="block w-full rounded-md border-slate-300 shadow-sm"></textarea></div>
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-200 flex justify-end">
+                <button type="submit" class="bg-[#891628] hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg">💾 Guardar Cambios Generales</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Sección Personas -->
+    <section id="personas-section" class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-[#891628]">👥 Personas Involucradas</h2>
+            <div class="flex flex-wrap gap-2">
+                <button id="btn-asignar-titular" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">➕ Asignar Titular</button>
+                <button id="btn-asignar-conductor" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">➕ Asignar Conductor</button>
+                <button id="btn-asignar-celador" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">➕ Asignar Celador</button>
+            </div>
+        </div>
+        <div id="personas-container" class="space-y-4">
+            <!-- Las personas se cargarán aquí dinámicamente -->
+        </div>
+    </section>
+
+    <!-- Sección Vehículo -->
+    <section id="vehiculo-section" class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-[#891628]">🚐 Datos del Vehículo</h2>
+            <div class="flex gap-2">
+                <button id="btn-desvincular-vehiculo" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm" style="display: none;">✖️ Desvincular Vehículo</button>
+                <button id="btn-asignar-vehiculo" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">➕ Asignar Vehículo</button>
+            </div>
+        </div>
+        <form id="form-vehiculo">
+            <div id="vehiculo-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+                <!-- Los campos del vehículo se cargarán aquí dinámicamente -->
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-200 flex justify-end">
+                <button id="save-vehicle-data" type="submit" class="bg-[#891628] hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg">💾 Guardar Cambios del Vehículo</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Sección Establecimientos -->
+    <section id="establecimientos-section" class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-[#891628]">🏫 Establecimientos Educativos</h2>
+            <div class="flex gap-2">
+                <button id="btn-asignar-establecimiento" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">➕ Asignar Establecimiento</button>
+            </div>
+        </div>
+        <div id="establecimientos-container" class="space-y-4">
+            <!-- Los establecimientos se cargarán aquí dinámicamente -->
+        </div>
+    </section>
+
+    <!-- Sección Documentos -->
+    <section id="documentos-section" class="bg-white p-6 rounded-lg shadow-sm">
+        <h3 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Documentos</h3>
+        <div id="documentos-container" class="space-y-3">
+            <!-- Los documentos se cargarán aquí -->
+        </div>
+
+        <div class="mt-6 pt-4 border-t">
+            <h4 class="text-lg font-semibold text-slate-700 mb-3">Subir Nuevo Documento</h4>
+            <form id="form-upload-document" class="grid grid-cols-1 sm:grid-cols-6 gap-4">
+                <div class="sm:col-span-3">
+                    <label for="documento-tipo" class="block text-sm font-medium text-slate-600 mb-1">Tipo de Documento</label>
+                    <select id="tipo_documento" name="tipo" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                        <option value="">Seleccione un tipo...</option>
+                        <option value="Resolución">Resolución</option>
+                        <option value="VTV">VTV</option>
+                        <option value="Póliza">Póliza de Seguro</option>
+                        <option value="Cédula Verde">Cédula Verde</option>
+                        <option value="Título del Vehículo">Título del Vehículo</option>
+                        <option value="Libreta Sanitaria">Libreta Sanitaria</option>
+                        <option value="Licencia de Conducir">Licencia de Conducir</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-3">
+                    <label for="documento-file" class="block text-sm font-medium text-slate-600 mb-1">Archivo</label>
+                    <input type="file" id="documento-file" name="documento" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                </div>
+                <div class="sm:col-span-6 text-right">
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">Subir Documento</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+</div>
+
+    <!-- Zona de Peligro -->
+    <section id="danger-zone" class="mt-8">
+        <div class="bg-red-50 border border-red-200 p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-bold text-red-800">Zona de Peligro</h3>
+            <p class="text-red-700 mt-2">Esta acción es irreversible. Al eliminar la habilitación, se borrarán todos los datos asociados, incluyendo personas, vehículo y documentos de forma permanente.</p>
+            <div class="mt-4">
+                <button id="btn-delete-habilitation" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md shadow-md">Eliminar Habilitación Permanentemente</button>
+            </div>
+        </div>
+    </section>
+
+<script src="./edit_habilitation.js"></script>
+
+</body>
+</html>

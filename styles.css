@@ -1,0 +1,5 @@
+/* Este archivo puede usarse para estilos personalizados adicionales si es necesario. */
+/* Tailwind se encarga de la mayoría de los estilos a través de clases de utilidad en el HTML. */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}

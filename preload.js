@@ -15,5 +15,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getDetailsId: () => ipcRenderer.invoke('get-details-id'),
   printOblea: (id) => ipcRenderer.invoke('print-oblea', id),
   readyToPrint: () => ipcRenderer.send('ready-to-print'),
-  renewHabilitation: (id) => ipcRenderer.invoke('renew-habilitation', id)
+  renewHabilitation: (id) => ipcRenderer.invoke('renew-habilitation', id),
+  createHabilitation: (payload) => ipcRenderer.invoke('create-habilitation', payload),
+  getHabilitationDetails: (id) => ipcRenderer.invoke('get-habilitation-details', id),
+  updateHabilitation: (payload) => ipcRenderer.invoke('update-habilitation', payload),
+  openEditWindow: (id) => ipcRenderer.invoke('open-edit-window', id),
+  getEditId: () => ipcRenderer.invoke('get-edit-id'),
+  updateVehicle: (payload) => ipcRenderer.invoke('update-vehicle', payload),
+  unlinkVehicle: (id) => ipcRenderer.invoke('unlink-vehicle', id),
+  unlinkPerson: (id) => ipcRenderer.invoke('unlink-person', id),
+  deleteDocument: (id) => ipcRenderer.invoke('delete-document', id),
+  uploadDocument: (formData) => ipcRenderer.invoke('upload-document', formData),
+  resetCredentials: (id) => ipcRenderer.invoke('reset-credentials', id),
+  deleteHabilitation: (id) => ipcRenderer.invoke('delete-habilitation', id),
+  openWindow: (url) => ipcRenderer.invoke('open-window', url),
+  onCredentialData: (callback) => ipcRenderer.on('credential-data', (event, ...args) => callback(...args))
 });

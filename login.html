@@ -78,6 +78,13 @@
                             </div>
                         </div>
 
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-red-800 focus:ring-red-700 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">Recordarme</label>
+                            </div>
+                        </div>
+
                         <div>
                             <button type="submit" :disabled="loading"
                                     class="w-full bg-red-800 text-white py-3 px-4 rounded-lg font-bold text-base hover:bg-red-900 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg flex items-center justify-center disabled:opacity-70 disabled:transform-none disabled:cursor-not-allowed">
@@ -117,8 +124,29 @@
         const errorContainer = document.getElementById('error-container');
         const errorMessageSpan = document.getElementById('error-message');
         
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('rememberedEmail');
+            const savedPassword = localStorage.getItem('rememberedPassword');
+            if (savedEmail) {
+                emailInput.value = savedEmail;
+                document.getElementById('remember-me').checked = true;
+                if (savedPassword) {
+                    passwordInput.value = savedPassword;
+                }
+            }
+        });
+
         function submitForm() {
             const loginContainer = document.getElementById('login-container');
+            const rememberMeCheckbox = document.getElementById('remember-me');
+
+            if (rememberMeCheckbox.checked) {
+                localStorage.setItem('rememberedEmail', emailInput.value);
+                localStorage.setItem('rememberedPassword', passwordInput.value);
+            } else {
+                localStorage.removeItem('rememberedEmail');
+                localStorage.removeItem('rememberedPassword');
+            }
             
             errorContainer.style.display = 'none';
             errorMessageSpan.textContent = '';

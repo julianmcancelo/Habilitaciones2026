@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credencial de Habilitación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @media print {
+            @page {
+                size: 85.6mm 54mm;
+                margin: 0;
+            }
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print, #credential-card {
+                display: none !important;
+            }
+            #printable-container {
+                display: block;
+            }
+
+            .printable-card-face {
+                width: 85.6mm;
+                height: 54mm;
+                padding: 4mm;
+                box-sizing: border-box;
+                overflow: hidden;
+                position: relative;
+                page-break-after: always;
+                background-color: #ffffff;
+                display: flex;
+                flex-direction: column;
+            }
+            .printable-card-face:last-child {
+                page-break-after: avoid;
+            }
+
+            /* Watermark for Front Face */
+            .front-face::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 40mm;
+                height: 40mm;
+                background-image: url('https://www.lanus.gob.ar/logo-200.png');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                opacity: 0.08;
+                transform: translate(-50%, -50%);
+                z-index: 1;
+            }
+
+            .card-content {
+                position: relative;
+                z-index: 2;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* General Typography */
+            .printable-card-face h1, .printable-card-face h2, .printable-card-face p, .printable-card-face div, .printable-card-face span {
+                font-family: 'Inter', sans-serif;
+                color: #1a202c; /* Darker Gray */
+            }
+            .printable-card-face h2 {
+                font-size: 6.5pt;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #2b6cb0; /* Blue */
+                margin-bottom: 1mm;
+                border-bottom: 0.4px solid #a0aec0; /* Lighter Gray border */
+                padding-bottom: 0.5mm;
+            }
+            .printable-card-face p, .printable-card-face div, .printable-card-face span { font-size: 7pt; line-height: 1.4; }
+
+            /* Front Side Specifics */
+            .printable-card-face .front-header {
+                display: flex; justify-content: space-between; align-items: flex-start;
+            }
+            .printable-card-face .front-header h1 { font-size: 11pt; font-weight: 800; color: #1a202c; margin: 0; }
+            .printable-card-face .front-header p { font-size: 7pt; color: #4a5568; margin: 0; }
+            .printable-card-face .front-header img { height: 9mm; }
+            .printable-card-face .titular-info { display: flex; align-items: center; gap: 3mm; margin-top: 3mm; flex-shrink: 0; }
+            .printable-card-face .titular-info img { width: 18mm; height: 18mm; border-radius: 4px; object-fit: cover; border: 1px solid #e2e8f0; }
+            .printable-card-face .titular-info .nombre { font-size: 9pt; font-weight: 600; color: #000; }
+            .printable-card-face .titular-info .dni { font-size: 7.5pt; color: #4a5568; }
+            .printable-card-face .habilitacion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5mm 4mm; margin-top: auto; padding-top: 2mm; flex-shrink: 0; }
+            .printable-card-face .habilitacion-grid strong { font-weight: 600; color: #718096; font-size: 6.5pt; }
+            .printable-card-face .habilitacion-grid span { font-weight: 500; font-size: 7.5pt; }
+            .printable-card-face .habilitacion-grid .numero { font-size: 12pt; color: #c53030; font-weight: 700; }
+            .printable-card-face .front-footer { position: absolute; bottom: 3mm; left: 4mm; right: 4mm; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
+            .printable-card-face .front-footer .fecha-emision { font-size: 5.5pt; color: #a0aec0; }
+            .printable-card-face .front-footer .qrcode-print { transform: scale(0.8); transform-origin: bottom right; }
+
+            /* Back Side Specifics */
+            .printable-card-face .persona-info { display: flex; align-items: center; gap: 2.5mm; margin-bottom: 2mm; }
+            .printable-card-face .persona-info img { width: 14mm; height: 14mm; border-radius: 4px; object-fit: cover; border: 1px solid #e2e8f0; }
+            .printable-card-face .persona-info .nombre { font-size: 8pt; font-weight: 600; }
+            .printable-card-face .vehiculo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1mm 3mm; }
+            .printable-card-face .vehiculo-grid strong { font-weight: 600; color: #718096; font-size: 6.5pt; }
+            .printable-card-face .vehiculo-grid span { font-weight: 500; font-size: 7pt; }
+        }
+
+    </style>
+</head>
+<body class="font-sans bg-gradient-to-br from-gray-50 to-blue-100 min-h-screen">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        <div id="credential-card" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border-t-8 border-blue-600">
+            <!-- Loading Spinner -->
+            <div id="loading-state" class="p-8 text-center">
+                <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-gray-500">Cargando datos de la credencial...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-state" class="hidden p-8 text-center">
+                <p class="text-red-600 font-semibold">No se pudieron cargar los datos.</p>
+                <p id="error-message" class="text-gray-500 mt-2"></p>
+            </div>
+            
+            <div id="credential-content" class="hidden">
+                <!-- Header -->
+                <div class="p-6 flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-gray-800">Credencial de Habilitación</h1>
+                        <p id="credential-subtitle" class="text-gray-500 tracking-wide">Transporte Municipalidad de Lanús</p>
+                    </div>
+                    <img src="https://www.lanus.gob.ar/logo-200.png" alt="Logo Lanús" class="h-16 opacity-90">
+                </div>
+
+                <!-- Content -->
+                <div id="credential-front">
+                    <div class="px-6 pb-6 md:px-8 md:pb-8 grid md:grid-cols-2 gap-x-8 gap-y-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6 pt-4 border-t">
+                        <!-- Titular -->
+                        <div>
+                            <h2 class="text-sm font-bold text-blue-700 uppercase tracking-wider">Titular del Vehículo</h2>
+                            <div class="flex items-center gap-5 mt-3">
+                                <img id="titular-foto" class="w-24 h-24 rounded-full object-cover bg-gray-200 border-4 border-white shadow-lg" alt="Foto del Titular">
+                                <div class="text-sm">
+                                    <p id="titular-nombre" class="text-xl font-bold text-gray-900">-</p>
+                                    <p class="text-gray-600"><strong class="font-medium">DNI:</strong> <span id="titular-dni">-</span></p>
+                                    <p class="text-gray-600"><strong class="font-medium">CUIT:</strong> <span id="titular-cuit">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="border-gray-200"/>
+                        <!-- Habilitación -->
+                        <div>
+                            <h2 class="text-base font-bold text-gray-700 pb-2">Datos de la Habilitación</h2>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2 text-sm">
+                                <div><strong class="font-medium text-gray-500">Licencia N°:</strong> <span id="habilitacion-licencia" class="block text-gray-800 font-semibold">-</span></div>
+                                <div><strong class="font-medium text-gray-500">Resolución:</strong> <span id="habilitacion-resolucion" class="block text-gray-800 font-semibold">-</span></div>
+                                <div><strong class="font-medium text-gray-500">Tipo:</strong> <span id="habilitacion-tipo" class="block text-gray-800 font-semibold">-</span></div>
+                                <div><strong class="font-medium text-gray-500">Vigencia:</strong> <span id="habilitacion-vigencia" class="block text-gray-800 font-semibold">-</span></div>
+                                <div class="col-span-2"><strong class="font-medium text-gray-500">Estado:</strong> <span id="habilitacion-estado" class="font-bold text-blue-600">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6 pt-4 border-t">
+                         <!-- QR Code -->
+                        <div class="flex justify-center items-center h-full">
+                            <div id="qrcode" class="w-48 h-48 p-2 bg-white rounded-lg shadow-md border"></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Back Side Content -->
+                <div id="credential-back" class="px-6 py-6 border-t-2 border-dashed mt-4">
+                    <!-- Conductor -->
+                    <div id="conductor-section" class="hidden">
+                        <h2 class="text-sm font-bold text-blue-700 uppercase tracking-wider">Conductor/a</h2>
+                        <div class="flex items-center gap-4 mt-2">
+                            <img id="conductor-foto" class="w-16 h-16 rounded-full object-cover bg-gray-200 border-2 border-white shadow" alt="Foto del Conductor">
+                            <div class="text-sm">
+                                <p id="conductor-nombre" class="font-semibold text-gray-800 text-base">-</p>
+                                <p class="text-gray-500"><strong class="font-medium">DNI:</strong> <span id="conductor-dni">-</span></p>
+                                <p class="text-gray-500"><strong class="font-medium">Licencia:</strong> <span id="conductor-licencia">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Celador -->
+                    <div id="celador-section" class="hidden mt-4">
+                        <h2 class="text-sm font-bold text-blue-700 uppercase tracking-wider">Celador/a</h2>
+                        <div class="flex items-center gap-4 mt-2">
+                            <img id="celador-foto" class="w-16 h-16 rounded-full object-cover bg-gray-200 border-2 border-white shadow" alt="Foto del Celador">
+                            <div class="text-sm">
+                                <p id="celador-nombre" class="font-semibold text-gray-800 text-base">-</p>
+                                <p class="text-gray-500"><strong class="font-medium">DNI:</strong> <span id="celador-dni">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Vehículo -->
+                    <div class="mt-6">
+                        <h2 class="text-base font-bold text-gray-700">Datos del Vehículo</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 mt-2 text-sm text-gray-800">
+                            <p><strong>Dominio:</strong> <span id="vehiculo-dominio" class="font-mono font-bold text-lg">-</span></p>
+                            <p><strong>Marca:</strong> <span id="vehiculo-marca">-</span></p>
+                            <p><strong>Modelo:</strong> <span id="vehiculo-modelo">-</span></p>
+                            <p><strong>Año:</strong> <span id="vehiculo-anio">-</span></p>
+                            <p><strong>Motor:</strong> <span id="vehiculo-motor">-</span></p>
+                            <p><strong>Chasis:</strong> <span id="vehiculo-chasis">-</span></p>
+                            <p><strong>Asientos:</strong> <span id="vehiculo-asientos">-</span></p>
+                            <p><strong>Aseguradora:</strong> <span id="vehiculo-aseguradora">-</span></p>
+                            <p><strong>Póliza:</strong> <span id="vehiculo-poliza">-</span></p>
+                            <p><strong>Venc. Póliza:</strong> <span id="vehiculo-venc-poliza">-</span></p>
+                            <p><strong>Venc. VTV:</strong> <span id="vehiculo-venc-vtv">-</span></p>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Footer -->
+                <div class="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+                    <div class="text-xs text-gray-400">
+                        Emitido el: <span id="fecha-emision">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print Button -->
+        <div class="mt-8 text-center no-print">
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-150 ease-in-out flex items-center gap-2 mx-auto">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Imprimir
+            </button>
+        </div>
+    </div>
+
+    <!-- Container for printing -->
+    <div id="printable-container" class="hidden"></div>
+
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        let credentialData = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const credentialContent = document.getElementById('credential-content');
+
+            const showError = (message) => {
+                loadingState.classList.add('hidden');
+                errorMessage.textContent = message;
+                errorState.classList.remove('hidden');
+            };
+
+            const loadCredentialData = (data) => {
+                credentialData = data;
+                sessionStorage.setItem('credentialData', JSON.stringify(data));
+                populateCredential(data);
+                loadingState.classList.add('hidden');
+                credentialContent.classList.remove('hidden');
+            };
+
+            // Check for data in sessionStorage first
+            const storedData = sessionStorage.getItem('credentialData');
+            if (storedData) {
+                try {
+                    loadCredentialData(JSON.parse(storedData));
+                    return; // Data loaded, no need to proceed
+                } catch (e) {
+                    console.error('Failed to parse credential data from sessionStorage', e);
+                    sessionStorage.removeItem('credentialData'); // Clear corrupted data
+                }
+            }
+
+            // If no sessionStorage data, use Electron API or fallback
+            if (window.electronAPI) {
+                window.electronAPI.onCredentialData((data) => {
+                    if (data && typeof data === 'object') {
+                        loadCredentialData(data);
+                    } else {
+                        showError('No se recibieron datos válidos para la credencial.');
+                    }
+                });
+            } else {
+                showError('La API de Electron no está disponible.');
+                // For testing in browser
+                const testData = {
+                    titular_nombre: 'Juan Alberto Perez',
+                    titular_dni: '28.123.456',
+                    titular_cuit: '20-28123456-5',
+                    titular_foto: 'https://randomuser.me/api/portraits/men/75.jpg',
+                    nro_licencia: 'HAB-12345',
+                    resolucion: '123/2023',
+                    tipo_transporte: 'Escolar',
+                    vigencia_inicio: '2023-01-01',
+                    vigencia_fin: '2024-01-01',
+                    estado: 'Activa',
+                    dominio: 'AC 123 BD',
+                    marca: 'Mercedes Benz',
+                    modelo: 'Sprinter',
+                    ano: '2019',
+                    motor: 'OM651DE22LA110KW',
+                    chasis: 'WDB9066351P123456',
+                    asientos: '19',
+                    Aseguradora: 'La Caja',
+                    poliza: 'P-555444',
+                    Vencimiento_Poliza: '2024-06-30',
+                    Vencimiento_VTV: '2024-05-31',
+                    conductor_nombre: 'Carlos Gomez',
+                    conductor_dni: '30.987.654',
+                    licencia_categoria: 'D2',
+                    conductor_foto: 'https://randomuser.me/api/portraits/men/76.jpg',
+                    celador_nombre: 'Maria Rodriguez',
+                    celador_dni: '32.456.789',
+                    celador_foto: 'https://randomuser.me/api/portraits/women/75.jpg',
+                    id: 'hab-12345-esc-2023'
+                };
+                loadCredentialData(testData);
+            }
+        });
+
+        function populateCredential(data) {
+            const setText = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text || '-';
+            };
+            const showSection = (sectionId, condition) => {
+                const el = document.getElementById(sectionId);
+                if (el && condition) el.classList.remove('hidden');
+            }
+            const formatDate = (dateString) => {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('es-AR');
+            }
+
+            // Header
+            setText('credential-subtitle', `${data.tipo_transporte || 'Transporte'} - Municipalidad de Lanús`);
+
+            // Titular
+            setText('titular-nombre', data.titular_nombre);
+            setText('titular-dni', data.titular_dni);
+            setText('titular-cuit', data.titular_cuit);
+            document.getElementById('titular-foto').src = data.titular_foto || '';
+
+            // Habilitación
+            setText('habilitacion-licencia', data.nro_licencia);
+            setText('habilitacion-resolucion', data.resolucion);
+            setText('habilitacion-tipo', data.tipo_transporte);
+            const vigencia = data.vigencia_inicio && data.vigencia_fin ? `${formatDate(data.vigencia_inicio)} al ${formatDate(data.vigencia_fin)}` : '-';
+            setText('habilitacion-vigencia', vigencia);
+            setText('habilitacion-estado', data.estado);
+
+            // Vehículo
+            setText('vehiculo-dominio', data.dominio);
+            setText('vehiculo-marca', data.marca);
+            setText('vehiculo-modelo', data.modelo);
+            setText('vehiculo-anio', data.ano);
+            setText('vehiculo-motor', data.motor);
+            setText('vehiculo-chasis', data.chasis);
+            setText('vehiculo-asientos', data.asientos);
+            setText('vehiculo-aseguradora', data.Aseguradora);
+            setText('vehiculo-poliza', data.poliza);
+            setText('vehiculo-venc-poliza', formatDate(data.Vencimiento_Poliza));
+            setText('vehiculo-venc-vtv', formatDate(data.Vencimiento_VTV));
+
+            // Conductor
+            if (data.conductor_nombre) {
+                showSection('conductor-section', true);
+                setText('conductor-nombre', data.conductor_nombre);
+                setText('conductor-dni', data.conductor_dni);
+                setText('conductor-licencia', data.licencia_categoria);
+                document.getElementById('conductor-foto').src = data.conductor_foto || '';
+            } 
+
+            // Celador
+            if (data.celador_nombre) {
+                showSection('celador-section', true);
+                setText('celador-nombre', data.celador_nombre);
+                setText('celador-dni', data.celador_dni);
+                document.getElementById('celador-foto').src = data.celador_foto || '';
+            }
+
+            // QR Code & Footer
+            if (data.id) {
+                generateQRCode(data.id);
+            }
+            setText('fecha-emision', new Date().toLocaleDateString('es-AR'));
+        }
+
+        function generateQRCode(text) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: String(text),
+                width: 180,
+                height: 180,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        window.addEventListener('beforeprint', () => {
+            const data = credentialData;
+            const formatDate = (dateString) => {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('es-AR');
+            }
+
+            // Create Front Face
+            const frontFace = document.createElement('div');
+            frontFace.className = 'printable-card-face front-face';
+            frontFace.innerHTML = `
+                <div class="card-content">
+                    <div class="front-header">
+                        <div>
+                            <h1>HABILITACIÓN</h1>
+                            <p>${data.tipo_transporte || 'Transporte'}</p>
+                        </div>
+                        <img src="https://www.lanus.gob.ar/logo-200.png" alt="Logo Municipal">
+                    </div>
+                    <div class="titular-info">
+                        <img src="${data.titular_foto || ''}" alt="Foto Titular">
+                        <div>
+                            <p class="nombre">${data.titular_nombre || '-'}</p>
+                            <p class="dni">DNI ${data.titular_dni || '-'}</p>
+                        </div>
+                    </div>
+                    <div class="habilitacion-grid">
+                        <div><strong>Licencia:</strong> <span class="numero">${data.nro_licencia || '-'}</span></div>
+                        <div><strong>Resolución:</strong> <span>${data.resolucion || '-'}</span></div>
+                        <div><strong>Vigencia:</strong> <span>${formatDate(data.vigencia_fin) || '-'}</span></div>
+                        <div><strong>Estado:</strong> <span>${data.estado || '-'}</span></div>
+                    </div>
+                    <div class="front-footer">
+                        <p class="fecha-emision">Emitido: ${new Date().toLocaleDateString('es-AR')}</p>
+                        <div class="qrcode-print"></div>
+                    </div>
+                </div>
+            `;
+
+            // Create Back Face
+            const backFace = document.createElement('div');
+            backFace.className = 'printable-card-face';
+            let backHtml = '<div class="card-content">';
+            if (data.conductor_nombre) {
+                backHtml += `
+                    <div class="persona-info">
+                        <img src="${data.conductor_foto || ''}" alt="Foto Conductor">
+                        <div>
+                            <h2>Conductor/a</h2>
+                            <p class="nombre">${data.conductor_nombre}</p>
+                            <p>DNI ${data.conductor_dni || '-'}</p>
+                        </div>
+                    </div>`;
+            }
+            if (data.celador_nombre) {
+                backHtml += `
+                    <div class="persona-info">
+                        <img src="${data.celador_foto || ''}" alt="Foto Celador">
+                        <div>
+                            <h2>Celador/a</h2>
+                            <p class="nombre">${data.celador_nombre}</p>
+                            <p>DNI ${data.celador_dni || '-'}</p>
+                        </div>
+                    </div>`;
+            }
+            backHtml += `
+                <div>
+                    <h2>Vehículo</h2>
+                    <div class="vehiculo-grid">
+                        <div><strong>Dominio:</strong> <span>${data.dominio || '-'}</span></div>
+                        <div><strong>Marca:</strong> <span>${data.marca || '-'}</span></div>
+                        <div><strong>Modelo:</strong> <span>${data.modelo || '-'}</span></div>
+                        <div><strong>Año:</strong> <span>${data.ano || '-'}</span></div>
+                        <div><strong>Chasis:</strong> <span>${data.chasis || '-'}</span></div>
+                        <div><strong>Motor:</strong> <span>${data.motor || '-'}</span></div>
+                    </div>
+                </div>`;
+            backHtml += '</div>';
+            backFace.innerHTML = backHtml;
+
+            const container = document.getElementById('printable-container');
+            container.innerHTML = ''; // Clear previous content
+            container.appendChild(frontFace);
+            container.appendChild(backFace);
+
+            // Generate QR for print
+            const qrPrintContainer = frontFace.querySelector('.qrcode-print');
+            if (data.id && qrPrintContainer) {
+                 new QRCode(qrPrintContainer, {
+                    text: String(data.id),
+                    width: 40,
+                    height: 40,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        });
+
+        window.addEventListener('afterprint', () => {
+            const container = document.getElementById('printable-container');
+            container.innerHTML = '';
+        });
+    </script>
+</body>
+</html>

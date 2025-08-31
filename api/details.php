@@ -1,8 +1,9 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-ini_set('display_errors', 0);
-error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require_once __DIR__ . '/../nucleo/conexion.php';
 
@@ -32,18 +33,27 @@ try {
         exit;
     }
 
-    $response['details'] = $habilitacion;
+    $response['habilitacion'] = $habilitacion;
 
-    // Consultas adicionales para datos relacionados (titular, vehículo, etc.)
-    // --- Titular ---
-    $stmt_titular = $pdo->prepare("SELECT p.* FROM habilitaciones_personas hp JOIN personas p ON p.id = hp.persona_id WHERE hp.habilitacion_id = ? AND hp.rol = 'TITULAR' LIMIT 1");
-    $stmt_titular->execute([$habilitacion_id]);
-    $response['titular'] = $stmt_titular->fetch(PDO::FETCH_ASSOC) ?: null;
+    // --- Personas (con todos sus datos y el ID de la relación) ---
+    $stmt_personas = $pdo->prepare(
+        "SELECT p.*, hp.id as persona_habilitacion_id, hp.rol 
+         FROM habilitaciones_personas hp 
+         JOIN personas p ON p.id = hp.persona_id 
+         WHERE hp.habilitacion_id = ?"
+    );
+    $stmt_personas->execute([$habilitacion_id]);
+    $response['personas'] = $stmt_personas->fetchAll(PDO::FETCH_ASSOC);
 
     // --- Vehículo ---
-    $stmt_vehiculo = $pdo->prepare("SELECT v.* FROM habilitaciones_vehiculos hv JOIN vehiculos v ON v.id = hv.vehiculo_id WHERE hv.habilitacion_id = ? LIMIT 1");
+    $stmt_vehiculo = $pdo->prepare("SELECT v.* FROM habilitaciones_vehiculos hv JOIN vehiculos v ON v.id=hv.vehiculo_id WHERE hv.habilitacion_id=? LIMIT 1");
     $stmt_vehiculo->execute([$habilitacion_id]);
     $response['vehiculo'] = $stmt_vehiculo->fetch(PDO::FETCH_ASSOC) ?: null;
+
+    // --- Documentos ---
+    $stmt_docs = $pdo->prepare("SELECT id, tipo_documento, nombre_archivo_original, ruta_archivo_guardado, DATE_FORMAT(fecha_subida, '%d/%m/%Y %H:%i') as fecha_formateada FROM habilitaciones_documentos WHERE habilitacion_id = ? ORDER BY fecha_subida DESC");
+    $stmt_docs->execute([$habilitacion_id]);
+    $response['documentos'] = $stmt_docs->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($response);
 
