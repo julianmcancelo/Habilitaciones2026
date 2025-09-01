@@ -81,6 +81,31 @@ ipcMain.handle('login', async (event, credentials) => {
     }
 });
 
+// --- Lógica para Refrescar el Dashboard ---
+async function refreshDashboardData(targetWindow) {
+    if (!targetWindow || targetWindow.isDestroyed()) {
+        console.log('Ventana de destino no disponible para refrescar.');
+        return;
+    }
+    console.log('Refrescando datos del dashboard...');
+    try {
+        const dashboardResponse = await axios.get(`${API_BASE_URL}/dashboard_data.php`, { withCredentials: true });
+        if (dashboardResponse.data.success) {
+            targetWindow.webContents.send('dashboard-data-updated', { dashboard: dashboardResponse.data });
+            console.log('Datos del dashboard enviados a la ventana de renderizado.');
+        } else {
+            console.error('API no retornó éxito al refrescar datos del dashboard.');
+        }
+    } catch (error) {
+        console.error('Error al obtener datos del dashboard para refrescar:', error);
+    }
+}
+
+ipcMain.on('request-dashboard-refresh', (event) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    refreshDashboardData(senderWindow);
+});
+
 app.whenReady().then(() => {
   autoUpdater.checkForUpdatesAndNotify();
   createWindow();
@@ -215,7 +240,8 @@ ipcMain.handle('open-window', (event, url) => {
 
     childWindow.on('closed', () => {
         if (parentWindow && !parentWindow.isDestroyed()) {
-            parentWindow.reload();
+            console.log('Ventana hija cerrada, refrescando dashboard.');
+            refreshDashboardData(parentWindow);
         }
     });
 });

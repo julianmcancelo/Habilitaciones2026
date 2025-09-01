@@ -1,0 +1,42 @@
+<?php
+// Este es un archivo de respaldo de conexion.php para ser copiado en api/conexion.php
+// Configuración de la conexión a la base de datos
+$pdo = null;
+
+// Determinar entorno
+$is_production = (strpos($_SERVER['HTTP_HOST'] ?? '', 'transportelanus.com.ar') !== false);
+
+// Configuración de BD según entorno
+if ($is_production) {
+    // Entorno de producción
+    $host = 'localhost';
+    $db_name = 'transpo1_credenciales';
+    $username = 'transpo1_credenciales';
+    $password_db = 'feelthesky1';
+} else {
+    // Entorno de desarrollo local
+    $host = 'localhost';
+    $db_name = 'transpo1_credenciales';
+    $username = 'transpo1_credenciales';
+    $password_db = 'feelthesky1';
+}
+$charset = 'utf8mb4';
+
+// Opciones para PDO
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $dsn = "mysql:host=$host;dbname=$db_name;charset=$charset";
+    $pdo = new PDO($dsn, $username, $password_db, $options);
+    // Registrar la conexión exitosa para diagnóstico
+    error_log("Conexión a la base de datos establecida con éxito desde " . __FILE__);
+} catch (PDOException $e) {
+    error_log('Error de conexión a la BD: ' . $e->getMessage());
+    // No lanzar excepción, permitir que el script maneje el error
+    // throw new Exception('Error de conexión: ' . $e->getMessage());
+}
+?>

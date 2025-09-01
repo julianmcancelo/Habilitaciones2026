@@ -1,5 +1,6 @@
 <?php
-// nucleo/conexion.php
+// api/conexion.php - Copia de seguridad del archivo de conexión
+// Esta es una copia redundante de nucleo/conexion.php para mayor compatibilidad
 
 // Configuración de credenciales
 // Determinar entorno y configurar credenciales

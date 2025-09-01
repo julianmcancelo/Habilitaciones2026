@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Correo Electrónico - Habilitaciones</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">Habilitaciones</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="configuracion_email.html">Configuración Email</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Configuración de Correo Electrónico</h1>
+        <div class="card">
+            <div class="card-header">
+                <h5>Configuración SMTP</h5>
+            </div>
+            <div class="card-body">
+                <form id="emailConfigForm">
+                    <!-- Servidor SMTP -->
+                    <div class="mb-3 row">
+                        <label for="smtpHost" class="col-sm-3 col-form-label">Servidor SMTP:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="smtpHost" name="smtp_host" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Puerto -->
+                    <div class="mb-3 row">
+                        <label for="smtpPort" class="col-sm-3 col-form-label">Puerto:</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="smtpPort" name="smtp_port" min="1" max="65535" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Seguridad -->
+                    <div class="mb-3 row">
+                        <label for="smtpSecure" class="col-sm-3 col-form-label">Seguridad:</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" id="smtpSecure" name="smtp_secure">
+                                <option value="tls">TLS</option>
+                                <option value="ssl">SSL</option>
+                                <option value="">Ninguno</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Autenticación -->
+                    <div class="mb-3 row">
+                        <label for="smtpAuth" class="col-sm-3 col-form-label">Autenticación:</label>
+                        <div class="col-sm-9">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="smtpAuth" name="smtp_auth" checked>
+                                <label class="form-check-label" for="smtpAuth">Requiere autenticación</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Usuario -->
+                    <div class="mb-3 row auth-field">
+                        <label for="username" class="col-sm-3 col-form-label">Usuario:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                    </div>
+                    
+                    <!-- Contraseña -->
+                    <div class="mb-3 row auth-field">
+                        <label for="password" class="col-sm-3 col-form-label">Contraseña:</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Remitente -->
+                    <div class="mb-3 row">
+                        <label for="fromEmail" class="col-sm-3 col-form-label">Email remitente:</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" id="fromEmail" name="from_email" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Nombre del remitente -->
+                    <div class="mb-3 row">
+                        <label for="fromName" class="col-sm-3 col-form-label">Nombre remitente:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="fromName" name="from_name" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Email de respuesta -->
+                    <div class="mb-3 row">
+                        <label for="replyTo" class="col-sm-3 col-form-label">Email de respuesta:</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" id="replyTo" name="reply_to">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar configuración
+                        </button>
+                        <button type="button" id="testEmailBtn" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>Enviar correo de prueba
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Configuración de Notificaciones</h5>
+            </div>
+            <div class="card-body">
+                <form id="notificationsForm">
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 form-label">Enviar confirmación automática de turnos:</label>
+                        <div class="col-sm-8">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="sendTurnoConfirmacion" checked>
+                                <label class="form-check-label" for="sendTurnoConfirmacion">Activar</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 form-label">Enviar recordatorio de turnos (24hs antes):</label>
+                        <div class="col-sm-8">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="sendTurnoRecordatorio" checked>
+                                <label class="form-check-label" for="sendTurnoRecordatorio">Activar</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-bell me-2"></i>Guardar preferencias de notificaciones
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para correo de prueba -->
+    <div class="modal fade" id="testEmailModal" tabindex="-1" aria-labelledby="testEmailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="testEmailModalLabel">Enviar correo de prueba</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="testEmail" class="form-label">Dirección de email:</label>
+                        <input type="email" class="form-control" id="testEmail" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="sendTestEmailBtn" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap, jQuery y SweetAlert -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/formatUtils.js"></script>
+    
+    <script>
+        // Función auxiliar para APIs
+        function apiUrl(endpoint) {
+            // En producción
+            if (window.location.hostname.includes('transportelanus.com.ar')) {
+                return `https://apis.transportelanus.com.ar/${endpoint}`;
+            }
+            
+            // En desarrollo local
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            return `${protocol}//${hostname}/${endpoint}`;
+        }
+        
+        // Cargar configuración existente
+        async function loadEmailConfig() {
+            try {
+                const response = await fetch(apiUrl('api/get_email_config.php'));
+                if (!response.ok) throw new Error('Error al obtener configuración');
+                
+                const config = await response.json();
+                
+                // Rellenar el formulario con los datos
+                $('#smtpHost').val(config.smtp_host || 'mail.transportelanus.com.ar');
+                $('#smtpPort').val(config.smtp_port || 587);
+                $('#smtpSecure').val(config.smtp_secure || 'tls');
+                $('#smtpAuth').prop('checked', config.smtp_auth !== false);
+                $('#username').val(config.username || 'habilitaciones@transportelanus.com.ar');
+                $('#fromEmail').val(config.from_email || 'habilitaciones@transportelanus.com.ar');
+                $('#fromName').val(config.from_name || 'Sistema de Habilitaciones');
+                $('#replyTo').val(config.reply_to || 'no-reply@transportelanus.com.ar');
+                
+                // La contraseña no se muestra por seguridad
+                $('#password').val(config.password_masked || '');
+                
+                // Cargar preferencias de notificaciones
+                $('#sendTurnoConfirmacion').prop('checked', config.send_confirmacion !== false);
+                $('#sendTurnoRecordatorio').prop('checked', config.send_recordatorio !== false);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Usar valores por defecto si no se puede cargar la configuración
+                $('#smtpHost').val('mail.transportelanus.com.ar');
+                $('#smtpPort').val(587);
+                $('#smtpSecure').val('tls');
+                $('#username').val('habilitaciones@transportelanus.com.ar');
+                $('#fromEmail').val('habilitaciones@transportelanus.com.ar');
+                $('#fromName').val('Sistema de Habilitaciones');
+                $('#replyTo').val('no-reply@transportelanus.com.ar');
+            }
+        }
+        
+        // Guardar configuración
+        async function saveEmailConfig(formData) {
+            try {
+                const response = await fetch(apiUrl('api/save_email_config.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Configuración guardada correctamente',
+                        icon: 'success'
+                    });
+                } else {
+                    throw new Error(result.message || 'Error al guardar');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: `No se pudo guardar la configuración: ${error.message}`,
+                    icon: 'error'
+                });
+            }
+        }
+        
+        // Enviar email de prueba
+        async function sendTestEmail(email) {
+            try {
+                // Recoger la configuración actual del formulario
+                const config = {
+                    smtp_host: $('#smtpHost').val(),
+                    smtp_port: parseInt($('#smtpPort').val()),
+                    smtp_secure: $('#smtpSecure').val(),
+                    smtp_auth: $('#smtpAuth').prop('checked'),
+                    username: $('#username').val(),
+                    password: $('#password').val(),
+                    from_email: $('#fromEmail').val(),
+                    from_name: $('#fromName').val(),
+                    reply_to: $('#replyTo').val(),
+                    test_email: email
+                };
+                
+                const response = await fetch(apiUrl('api/test_email.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Correo de prueba enviado correctamente',
+                        icon: 'success'
+                    });
+                } else {
+                    throw new Error(result.message || 'Error al enviar correo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: `No se pudo enviar el correo de prueba: ${error.message}`,
+                    icon: 'error'
+                });
+            }
+        }
+        
+        // Guardar preferencias de notificaciones
+        async function saveNotificationPreferences() {
+            try {
+                const preferences = {
+                    send_confirmacion: $('#sendTurnoConfirmacion').prop('checked'),
+                    send_recordatorio: $('#sendTurnoRecordatorio').prop('checked')
+                };
+                
+                const response = await fetch(apiUrl('api/save_notification_preferences.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(preferences)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Preferencias guardadas correctamente',
+                        icon: 'success'
+                    });
+                } else {
+                    throw new Error(result.message || 'Error al guardar');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: `No se pudieron guardar las preferencias: ${error.message}`,
+                    icon: 'error'
+                });
+            }
+        }
+        
+        // Inicialización
+        $(document).ready(function() {
+            // Cargar configuración al iniciar
+            loadEmailConfig();
+            
+            // Manejar visibilidad de campos de autenticación
+            $('#smtpAuth').change(function() {
+                if($(this).is(':checked')) {
+                    $('.auth-field').show();
+                } else {
+                    $('.auth-field').hide();
+                }
+            });
+            
+            // Botón de prueba de email
+            $('#testEmailBtn').click(function() {
+                $('#testEmailModal').modal('show');
+            });
+            
+            // Enviar correo de prueba
+            $('#sendTestEmailBtn').click(function() {
+                const testEmail = $('#testEmail').val();
+                if (!testEmail) {
+                    alert('Ingrese una dirección de correo válida');
+                    return;
+                }
+                
+                // Cerrar modal
+                $('#testEmailModal').modal('hide');
+                
+                // Enviar correo de prueba
+                sendTestEmail(testEmail);
+            });
+            
+            // Guardar configuración
+            $('#emailConfigForm').submit(function(e) {
+                e.preventDefault();
+                
+                // Recoger datos del formulario
+                const formData = {
+                    smtp_host: $('#smtpHost').val(),
+                    smtp_port: parseInt($('#smtpPort').val()),
+                    smtp_secure: $('#smtpSecure').val(),
+                    smtp_auth: $('#smtpAuth').prop('checked'),
+                    username: $('#username').val(),
+                    password: $('#password').val(), // Solo se enviará si hay valor
+                    from_email: $('#fromEmail').val(),
+                    from_name: $('#fromName').val(),
+                    reply_to: $('#replyTo').val()
+                };
+                
+                // Guardar configuración
+                saveEmailConfig(formData);
+            });
+            
+            // Guardar preferencias de notificaciones
+            $('#notificationsForm').submit(function(e) {
+                e.preventDefault();
+                saveNotificationPreferences();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox --disable-gpu-sandbox",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "npx electron-builder",
+    "api": "npx php-server -S localhost -p 4000 -t ."
   },
   "keywords": [],
   "author": "",
@@ -14,11 +16,16 @@
   "devDependencies": {
     "electron": "^37.4.0",
     "electron-builder": "^24.13.3",
-    "electron-rebuild": "^3.2.9"
+    "electron-rebuild": "^3.2.9",
+    "php-server": "^0.2.1"
   },
   "build": {
     "appId": "com.transportelanus.habilitaciones",
     "productName": "Habilitaciones Lanus",
+    "win": {
+      "certificateSubjectName": "",
+      "certificateSha1": ""
+    },
     "publish": [
       {
         "provider": "github",

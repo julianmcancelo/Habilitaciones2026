@@ -3,20 +3,38 @@
 // -----------------------------------------------------------------------------
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *'); // Permite el acceso desde cualquier origen.
+
+// Activar reportes de errores para depuración pero no mostrarlos al cliente
+error_reporting(E_ALL);
 ini_set('display_errors', 0); // Desactivar la visualización de errores en producción.
-error_reporting(0);
 
 session_start();
 
 // 2. INCLUSIÓN DE ARCHIVOS Y VERIFICACIÓN DE CONEXIÓN
 // -----------------------------------------------------------------------------
 try {
-    // Se asume que este archivo establece la conexión y crea el objeto $pdo.
-    require_once __DIR__ . '/../nucleo/conexion.php';
+    // Sistema de rutas para compatibilidad con diferentes entornos
+    require_once __DIR__ . '/include_path.php';
+    
+    // Intentar primero con el sistema de rutas
+    include_from_root('/nucleo/conexion.php');
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error crítico: No se pudo cargar el archivo de conexión.']);
-    exit;
+    // Si falla, intentar cargar la copia local directamente
+    $local_conexion = __DIR__ . '/conexion.php';
+    
+    if (file_exists($local_conexion)) {
+        require_once $local_conexion;
+        error_log("Se usó la copia local de conexion.php como fallback en dashboard_data.php");
+    } else {
+        // Error fatal si no podemos cargar ninguna versión
+        http_response_code(500);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Error crítico: No se pudo cargar el archivo de conexión.',
+            'debug' => 'No se encontró la copia local en: ' . $local_conexion
+        ]);
+        exit;
+    }
 }
 
 // 3. VERIFICACIÓN DE SESIÓN DE USUARIO
@@ -60,8 +78,13 @@ try {
             hg.estado, 
             hg.vigencia_fin, 
             hg.tipo_transporte, 
-            (SELECT p.nombre FROM habilitaciones_personas hp JOIN personas p ON p.id = hp.persona_id WHERE hp.habilitacion_id = hg.id AND hp.rol = 'TITULAR' LIMIT 1) AS titular
+            (SELECT p.nombre FROM habilitaciones_personas hp JOIN personas p ON p.id = hp.persona_id WHERE hp.habilitacion_id = hg.id AND hp.rol = 'TITULAR' LIMIT 1) AS titular,
+            t.id AS turno_id,
+            t.fecha AS turno_fecha,
+            t.hora AS turno_hora,
+            t.estado AS turno_estado
         FROM habilitaciones_generales hg 
+        LEFT JOIN turnos t ON hg.id = t.habilitacion_id AND t.fecha >= CURDATE()
         WHERE hg.is_deleted = 0 AND hg.tipo_transporte IN ($transporte_scope)
         ORDER BY hg.id DESC
         LIMIT 100; -- Limitar a los 100 registros más recientes para no sobrecargar la app

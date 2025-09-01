@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Función para que welcome.html escuche el evento 'login-success'
   onLoginSuccess: (callback) => ipcRenderer.on('login-success', (event, ...args) => callback(...args)),
+  onDashboardDataUpdated: (callback) => ipcRenderer.on('dashboard-data-updated', (event, ...args) => callback(...args)),
+  requestDashboardRefresh: () => ipcRenderer.send('request-dashboard-refresh'),
 
   logout: () => ipcRenderer.send('logout'),
 
