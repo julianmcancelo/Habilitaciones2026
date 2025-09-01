@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="js/themes.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-        .login-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 300px; }
-        h1 { margin-top: 0; color: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg-secondary); }
+        .login-container { background: var(--bg-primary); padding: 40px; border-radius: 8px; box-shadow: var(--card-shadow); text-align: center; width: 300px; }
+        h1 { margin-top: 0; color: var(--text-primary); }
         .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #555; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: #007bff; color: white; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #error-message { color: red; margin-top: 10px; min-height: 1em; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; background-color: var(--bg-primary); color: var(--text-primary); }
+        button { width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: var(--accent-color); color: white; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: var(--accent-hover); }
+        #error-message { color: var(--danger-color); margin-top: 10px; min-height: 1em; }
     </style>
 </head>
 <body>
@@ -49,5 +50,8 @@
         }
       });
     </script>
+    
+    <!-- Script para gestionar el tema claro/oscuro -->
+    <script src="js/themeHandler.js"></script>
 </body>
 </html>

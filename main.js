@@ -1,9 +1,50 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const { app, BrowserWindow, ipcMain, Menu, dialog, nativeTheme } = require('electron');
+const fs = require('fs');
+// Deshabilitado temporalmente debido a errores
+// const { autoUpdater } = require('electron-updater');
 const path = require('node:path');
 const axios = require('axios');
 
 const API_BASE_URL = 'https://apis.transportelanus.com.ar/api';
+
+// Sistema simple de persistencia para preferencias del usuario
+const userPrefs = (() => {
+  // Rutas para los archivos de preferencias
+  const prefsPath = path.join(app.getPath('userData'), 'preferences.json');
+  
+  // Valores por defecto
+  let prefs = {
+    theme: 'system',
+    lastUpdate: null
+  };
+  
+  // Intentar cargar preferencias guardadas
+  try {
+    if (fs.existsSync(prefsPath)) {
+      const savedPrefs = JSON.parse(fs.readFileSync(prefsPath, 'utf8'));
+      prefs = { ...prefs, ...savedPrefs };
+      console.log('Preferencias cargadas correctamente');
+    }
+  } catch (err) {
+    console.error('Error al cargar preferencias:', err);
+  }
+  
+  // Métodos para acceder y modificar preferencias
+  return {
+    get: function(key) {
+      return prefs[key];
+    },
+    set: function(key, value) {
+      prefs[key] = value;
+      try {
+        fs.writeFileSync(prefsPath, JSON.stringify(prefs, null, 2));
+        console.log(`Preferencia guardada: ${key}=${value}`);
+      } catch (err) {
+        console.error('Error al guardar preferencias:', err);
+      }
+    }
+  };
+})();
 
 let win;
 let detailsWindow;
@@ -28,6 +69,11 @@ function createWindow () {
 
 // --- Lógica de Autenticación con API Externa ---
 ipcMain.on('logout', () => {
+    // Eliminar datos del usuario de las preferencias
+    userPrefs.set('userData', null);
+    console.log('Usuario desconectado y datos eliminados');
+    
+    // Redirigir a la pantalla de login
     if (win) {
         win.loadFile('login.html');
     }
@@ -51,6 +97,16 @@ ipcMain.handle('login', async (event, credentials) => {
 
         if (data.success) {
             const user = data;
+            
+            // Guardar datos del usuario en las preferencias
+            userPrefs.set('userData', {
+                id: user.id || user.user_id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            });
+            
+            console.log('Usuario autenticado y guardado en preferencias');
 
             // Una vez logueado, obtenemos los datos del dashboard
             try {
@@ -106,9 +162,16 @@ ipcMain.on('request-dashboard-refresh', (event) => {
     refreshDashboardData(senderWindow);
 });
 
+// NOTA: Sistema de actualizaciones temporalmente desactivado debido a errores
+console.log('Aplicación iniciada - Sistema de actualizaciones desactivado temporalmente');
+
 app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify();
+  // Aplicar el tema guardado al iniciar
+  const savedTheme = userPrefs.get('theme') || 'system';
+  applyTheme(savedTheme);
+  
   createWindow();
+  createMenu();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -116,6 +179,174 @@ app.whenReady().then(() => {
     }
   });
 });
+
+// Aplicar tema guardado al inicio
+function applyTheme(themeName) {
+  switch(themeName) {
+    case 'light':
+      nativeTheme.themeSource = 'light';
+      break;
+    case 'dark':
+      nativeTheme.themeSource = 'dark';
+      break;
+    default: // system
+      nativeTheme.themeSource = 'system';
+      themeName = 'system'; // Normalizar para almacenar
+      break;
+  }
+  // Guardar preferencia
+  userPrefs.set('theme', themeName);
+  
+  // Notificar a todas las ventanas sobre el cambio de tema
+  BrowserWindow.getAllWindows().forEach(window => {
+    if (!window.isDestroyed()) {
+      window.webContents.send('theme-changed', { theme: themeName });
+    }
+  });
+}
+
+// Función de verificación de actualizaciones temporalmente eliminada
+// Para habilitar en el futuro, restaurar código original
+
+// Creación del menú en español
+function createMenu() {
+  // Determinar el tema actual para marcar la opción correcta
+  const currentTheme = userPrefs.get('theme');
+  
+  const template = [
+    {
+      label: 'Archivo',
+      submenu: [
+        { label: 'Cerrar', role: 'close', accelerator: 'CmdOrCtrl+W' },
+        { type: 'separator' },
+        { label: 'Salir', role: 'quit', accelerator: 'CmdOrCtrl+Q' }
+      ]
+    },
+    {
+      label: 'Navegación',
+      submenu: [
+        { 
+          label: 'Dashboard', 
+          click: () => {
+            if (win && !win.isDestroyed()) {
+              win.loadFile('dashboard.html');
+            }
+          },
+          accelerator: 'CmdOrCtrl+D'
+        },
+        { type: 'separator' },
+        { 
+          label: 'Crear nueva habilitación', 
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.webContents.send('menu-action', { action: 'create-new' });
+            }
+          },
+          accelerator: 'CmdOrCtrl+N'
+        },
+        { 
+          label: 'Asignar vehículo', 
+          click: () => {
+            if (BrowserWindow.getFocusedWindow()) {
+              BrowserWindow.getFocusedWindow().webContents.executeJavaScript(
+                `window.electronAPI.openWindow('asignar_vehiculo.html')`
+              );
+            }
+          } 
+        },
+        { 
+          label: 'Asignar persona', 
+          click: () => {
+            if (BrowserWindow.getFocusedWindow()) {
+              BrowserWindow.getFocusedWindow().webContents.executeJavaScript(
+                `window.electronAPI.openWindow('asignar_persona.html')`
+              );
+            }
+          } 
+        }
+      ]
+    },
+    {
+      label: 'Editar',
+      submenu: [
+        { label: 'Deshacer', role: 'undo' },
+        { label: 'Rehacer', role: 'redo' },
+        { type: 'separator' },
+        { label: 'Cortar', role: 'cut' },
+        { label: 'Copiar', role: 'copy' },
+        { label: 'Pegar', role: 'paste' },
+        { type: 'separator' },
+        { label: 'Seleccionar todo', role: 'selectAll' }
+      ]
+    },
+    {
+      label: 'Ver',
+      submenu: [
+        { label: 'Recargar', role: 'reload' },
+        // Temporalmente removido: Forzar recarga
+        { type: 'separator' },
+        { label: 'Ampliar/Reducir', submenu: [
+          { label: 'Ampliar', role: 'zoomIn' },
+          { label: 'Reducir', role: 'zoomOut' },
+          { label: 'Restablecer', role: 'resetZoom' }
+        ]},
+        { type: 'separator' },
+        { label: 'Pantalla completa', role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Ventana',
+      submenu: [
+        { label: 'Minimizar', role: 'minimize' },
+        { label: 'Maximizar', role: 'zoom' },
+        { type: 'separator' },
+        { label: 'Traer todo al frente', role: 'front' }
+      ]
+    },
+    {
+      label: 'Ayuda',
+      submenu: [
+        {
+          label: 'Acerca de',
+          click: () => {
+            // Mostrar ventana de Acerca de con la nueva página HTML
+            const aboutWindow = new BrowserWindow({
+              width: 600,
+              height: 600,
+              resizable: false,
+              minimizable: false,
+              maximizable: false,
+              parent: BrowserWindow.getFocusedWindow(),
+              modal: true,
+              icon: path.join(__dirname, 'publico/imagenes/logo_municipio_512.png'),
+              webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                preload: path.join(__dirname, 'preload.js')
+              }
+            });
+            
+            // Cargar HTML directamente en la ventana
+            aboutWindow.loadFile('about.html');
+            
+            // Quitar menú en la ventana de Acerca de
+            aboutWindow.removeMenu();
+            
+            // Aplicar el tema actual a la ventana
+            const currentTheme = userPrefs.get('theme') || 'system';
+            aboutWindow.webContents.on('did-finish-load', () => {
+              aboutWindow.webContents.send('theme-changed', { theme: currentTheme });
+            });
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
 
 // --- Lógica para la Ventana de Detalles ---
 ipcMain.handle('open-details-window', (event, id) => {
@@ -168,6 +399,32 @@ ipcMain.handle('update-habilitation', async (event, payload) => {
         console.error('Error al actualizar la habilitación:', error?.response?.data || error.message);
         return { success: false, message: 'No se pudo actualizar la habilitación.' };
     }
+});
+
+// Verificar estado de autenticación
+ipcMain.handle('check-auth-status', async (event) => {
+    // Verificar si hay datos del usuario en las preferencias
+    const userData = userPrefs.get('userData');
+    if (userData && userData.id) {
+        return {
+            authenticated: true,
+            user: userData
+        };
+    } else {
+        return {
+            authenticated: false
+        };
+    }
+});
+
+// Navegar a una página específica
+ipcMain.handle('navigate', (event, page) => {
+    const currentWindow = BrowserWindow.getFocusedWindow() || win;
+    if (currentWindow) {
+        currentWindow.loadFile(page);
+        return { success: true };
+    }
+    return { success: false, error: 'No se encontró la ventana activa' };
 });
 
 function createEditWindow(id) {

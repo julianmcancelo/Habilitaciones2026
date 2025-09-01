@@ -17,7 +17,38 @@
     </style>
 </head>
 <body class="bg-white">
-
+<div class="app-container">
+    <!-- Barra de título personalizada -->
+    <div class="title-bar">
+        <div class="flex items-center">
+            <img src="publico/icono.png" alt="Logo" class="app-icon">
+            <span class="app-title">Sistema de Habilitaciones</span>
+        </div>
+        <div class="title-controls">
+            <button id="minimizeBtn" title="Minimizar">
+                <svg width="10" height="1" viewBox="0 0 10 1">
+                    <path d="M0 0h10v1H0z" fill="currentColor" />
+                </svg>
+            </button>
+            <button id="maximizeBtn" title="Maximizar">
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M0 0v10h10V0H0zm1 1h8v8H1V1z" fill="currentColor" />
+                </svg>
+            </button>
+            <button id="restoreBtn" title="Restaurar" style="display:none;">
+                <svg width="11" height="11" viewBox="0 0 11 11">
+                    <path d="M3 0v3H0v8h8V8h3V0H3zm5 10H1V4h7v6zm2-3H9V3H4V1h6v6z" fill="currentColor" />
+                </svg>
+            </button>
+            <button id="closeBtn" title="Cerrar" class="close">
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M9.66 1.4L8.6.34 5 3.94 1.4.34.34 1.4 3.94 5 .34 8.6l1.06 1.06L5 6.06l3.6 3.6 1.06-1.06L6.06 5z" fill="currentColor" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <div class="content-container p-4">
     <div id="loading" class="text-center p-10">
         <p>Cargando datos para la impresión...</p>
     </div>

@@ -31,5 +31,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   resetCredentials: (id) => ipcRenderer.invoke('reset-credentials', id),
   deleteHabilitation: (id) => ipcRenderer.invoke('delete-habilitation', id),
   openWindow: (url) => ipcRenderer.invoke('open-window', url),
-  onCredentialData: (callback) => ipcRenderer.on('credential-data', (event, ...args) => callback(...args))
+  onCredentialData: (callback) => ipcRenderer.on('credential-data', (event, ...args) => callback(...args)),
+  
+  // Verificación de autenticación
+  checkAuthStatus: () => ipcRenderer.invoke('check-auth-status'),
+  navigate: (page) => ipcRenderer.invoke('navigate', page),
+  
+  // Eventos relacionados con el tema
+  onThemeChanged: (callback) => ipcRenderer.on('theme-changed', (event, ...args) => callback(...args))
 });

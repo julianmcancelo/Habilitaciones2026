@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Bienvenido</title>
+    <link rel="stylesheet" href="js/themes.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; text-align: center; }
-        .welcome-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg-secondary); text-align: center; }
+        .welcome-container { background: var(--bg-primary); padding: 40px; border-radius: 8px; box-shadow: var(--card-shadow); }
+        h1 { color: var(--text-primary); }
     </style>
 </head>
 <body>
@@ -20,5 +21,8 @@
             welcomeMessage.textContent = `¡Bienvenido, ${data.name}!`;
         });
     </script>
+    
+    <!-- Script para gestionar el tema claro/oscuro -->
+    <script src="js/themeHandler.js"></script>
 </body>
 </html>

@@ -11,6 +11,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Librería SweetAlert2 para mejores alertas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Estilos globales consistentes -->
+    <link rel="stylesheet" href="styles.css">
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         [x-cloak] { display: none !important; }
@@ -28,8 +30,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-4">
-                    <img src="https://www.lanus.gob.ar/logo-200.png" class="h-10" alt="Logo Lanús">
-                    <h1 class="text-lg font-bold text-slate-800">Licencia de Transporte</h1>
+                    <img src="publico/logo.svg" class="h-10" alt="Logo Habilitaciones">
+                    <h1 class="text-lg font-bold text-slate-800 hidden sm:block">Movilidad y Transporte</h1>
                 </div>
                 <div class="flex items-center gap-4">
                     <button id="print-button" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
@@ -897,5 +899,8 @@
             document.body.appendChild(modal);
         }
     </script>
+    
+    <!-- Script para UI profesional -->
+    <script src="js/professionalUI.js"></script>
 </body>
 </html>

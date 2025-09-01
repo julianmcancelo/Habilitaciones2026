@@ -9,6 +9,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Librería SweetAlert2 para mejores alertas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Sistema de temas claro/oscuro -->
+    <link rel="stylesheet" href="js/themes.css">
     <!-- Utilidades propias de formato -->
     <script src="js/formatUtils.js"></script>
     <style>
@@ -16,13 +18,13 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body x-data="{ isCreateModalOpen: false, isTurnoModalOpen: false, turnoHabilitacionId: null }" @open-turno-modal.window="isTurnoModalOpen = true; turnoHabilitacionId = $event.detail.id;" class="bg-slate-50">
+<body x-data="{ isCreateModalOpen: false, isTurnoModalOpen: false, turnoHabilitacionId: null }" @open-turno-modal.window="isTurnoModalOpen = true; turnoHabilitacionId = $event.detail.id;" class="bg-slate-50 theme-default">
 
 <header class="bg-white/95 backdrop-blur-lg shadow-sm border-b border-slate-200 sticky top-0 z-30">
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <div class="flex items-center gap-4">
-                <img src="https://www.lanus.gob.ar/logo-200.png" class="h-10" alt="Logo Lanús">
+                <img src="publico/logo.svg" class="h-12" alt="Logo Habilitaciones">
                 <h1 class="text-lg font-bold text-slate-800 hidden sm:block">Movilidad y Transporte</h1>
             </div>
             <div class="flex items-center gap-4">
@@ -42,15 +44,36 @@
 
         <main class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
-        <div>
-            <h2 class="text-3xl font-extrabold text-slate-800">Panel de Habilitaciones</h2>
-            <p class="text-md text-slate-500 mt-1">Gestión centralizada de licencias y transportes.</p>
+        <div class="card bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-600">
+            <div class="flex items-center">
+                <div class="mr-4">
+                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-800">Panel de Habilitaciones</h2>
+                    <p class="text-md text-slate-500 mt-1">Gestión centralizada de licencias y transportes.</p>
+                </div>
+            </div>
         </div>
         <div class="flex items-center gap-3">
-            <button @click="isCreateModalOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                <span>Nueva Habilitación</span>
+            <button id="newHabilitationBtn" @click="isCreateModalOpen = true" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 relative overflow-hidden group">
+                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"></span>
+                <span class="relative z-10 flex items-center">
+                    <svg class="h-5 w-5 mr-1 transition-transform duration-300 transform group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    <span class="relative z-10 transition-transform duration-300 transform group-hover:scale-105">Nueva Habilitación</span>
+                </span>
             </button>
+
+            <a href="edit_habilitation.html" id="newVehicleBtn" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-5 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 group">
+                <svg class="h-5 w-5 mr-1 transition-transform duration-300 transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span class="transition-transform duration-300 transform group-hover:scale-105">Nuevo Vehículo</span>
+            </a>
         </div>
     </div>
 
@@ -980,5 +1003,55 @@
     </div>
 </div>
 
+    <!-- Script para gestionar el tema claro/oscuro -->
+    <script src="js/themeHandler.js"></script>
+    
+    <!-- Script de verificación de autenticación -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/authCheck.js"></script>
+    
+    <!-- Script para UI profesional -->
+    <script src="js/professionalUI.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación inicial
+            window.authUtils.checkAuthStatus()
+                .then(authData => {
+                    console.log('Usuario autenticado:', authData);
+                })
+                .catch(err => {
+                    console.error('Error de autenticación:', err);
+                });
+                
+            // Configurar botones que requieren autenticación
+            document.getElementById('newHabilitationBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                window.authUtils.checkAuthStatus()
+                    .then(() => {
+                        // Si está autenticado, continuar con la acción original
+                        window.dispatchEvent(new CustomEvent('open-create-modal'));
+                    })
+                    .catch(() => {
+                        // La redirección se maneja en authCheck.js
+                    });
+            });
+            
+            document.getElementById('newVehicleBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                window.authUtils.checkAuthStatus()
+                    .then(() => {
+                        // Si está autenticado, continuar con la acción original
+                        window.location.href = 'edit_habilitation.html';
+                    })
+                    .catch(() => {
+                        // La redirección se maneja en authCheck.js
+                    });
+            });
+        });
+    </script>
 </body>
 </html>

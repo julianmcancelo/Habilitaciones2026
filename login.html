@@ -6,6 +6,7 @@
     <title>Acceso al Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="js/themes.css">
     <style>
         [x-cloak] { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -14,7 +15,7 @@
         .animate-fade-in-up { animation: fadeInUp 0.8s ease-in-out forwards; }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 theme-default">
 
     <div class="bg-gray-100 flex items-center justify-center min-h-screen">
         <div class="flex bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden m-4 animate-fade-in">
@@ -27,7 +28,7 @@
                         <h1 class="text-4xl font-bold leading-tight text-shadow">Sistema de Gestión Interna</h1>
                         <p class="text-lg opacity-90 text-shadow-sm mt-2">Municipio de Lanús</p>
                     </div>
-                    <img src="https://www.lanus.gob.ar/logo-200.png" alt="Logo Municipio de Lanús" class="h-16 w-auto opacity-75 self-start animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <img src="publico/logo.svg" alt="Logo Habilitaciones" class="h-20 w-auto self-start animate-fade-in-up" style="animation-delay: 0.4s;">
                 </div>
             </div>
 
@@ -170,6 +171,8 @@
         }
 
     </script>
-
+    
+    <!-- Script para gestionar el tema claro/oscuro -->
+    <script src="js/themeHandler.js"></script>
 </body>
 </html>
