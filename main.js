@@ -69,9 +69,18 @@ function createWindow () {
 
 // --- Lógica de Autenticación con API Externa ---
 ipcMain.on('logout', () => {
-    // Eliminar datos del usuario de las preferencias
-    userPrefs.set('userData', null);
-    console.log('Usuario desconectado y datos eliminados');
+    // Eliminar datos del usuario de las preferencias - usar delete es más seguro que null
+    try {
+        // Eliminar completamente la clave userData
+        userPrefs.delete('userData');
+        
+        // Como respaldo, también establecer explícitamente a un objeto con authenticated=false
+        userPrefs.set('userData', { authenticated: false });
+        
+        console.log('Usuario desconectado y datos eliminados correctamente');
+    } catch (error) {
+        console.error('Error al eliminar datos de usuario:', error);
+    }
     
     // Redirigir a la pantalla de login
     if (win) {
@@ -99,14 +108,14 @@ ipcMain.handle('login', async (event, credentials) => {
             const user = data;
             
             // Guardar datos del usuario en las preferencias
+            // La API solo devuelve name y success, generamos un ID si no existe
             userPrefs.set('userData', {
-                id: user.id || user.user_id,
-                name: user.name,
-                email: user.email,
-                role: user.role
+                id: user.id || user.user_id || 1, // Asignar ID=1 por defecto si no lo proporciona la API
+                name: user.name || 'Usuario',
+                authenticated: true
             });
             
-            console.log('Usuario autenticado y guardado en preferencias');
+            console.log('Usuario autenticado y guardado en preferencias:',  user);
 
             // Una vez logueado, obtenemos los datos del dashboard
             try {
@@ -405,12 +414,16 @@ ipcMain.handle('update-habilitation', async (event, payload) => {
 ipcMain.handle('check-auth-status', async (event) => {
     // Verificar si hay datos del usuario en las preferencias
     const userData = userPrefs.get('userData');
-    if (userData && userData.id) {
+    
+    // Comprobar si existe userData y tiene authenticated=true o id definido
+    if (userData && (userData.authenticated === true || userData.id)) {
+        console.log('Usuario autenticado encontrado en preferencias:', userData);
         return {
             authenticated: true,
             user: userData
         };
     } else {
+        console.log('Usuario no autenticado. Datos en preferencias:', userData);
         return {
             authenticated: false
         };

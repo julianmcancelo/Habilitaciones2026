@@ -7,17 +7,23 @@
 function checkAuthStatus() {
     return new Promise((resolve, reject) => {
         try {
+            console.log('Verificando estado de autenticación...');
             // Usamos la API de Electron para verificar si hay un usuario autenticado
             window.electronAPI.checkAuthStatus()
                 .then(response => {
-                    if (response && response.authenticated) {
+                    console.log('Respuesta de checkAuthStatus:', response);
+                    // Verificamos que response sea un objeto y tenga la propiedad authenticated=true
+                    if (response && response.authenticated === true) {
+                        console.log('Usuario autenticado correctamente');
                         // El usuario está autenticado
                         resolve(response);
-                    } else {
-                        // El usuario no está autenticado, redirigimos al login
-                        redirectToLogin();
-                        reject(new Error("No autenticado"));
-                    }
+                        return; // Aseguramos que no se ejecuta el código siguiente
+                    } 
+                    
+                    console.log('No se detectó autenticación, redirigiendo a login');
+                    // El usuario no está autenticado, redirigimos al login
+                    redirectToLogin();
+                    reject(new Error("No autenticado"));
                 })
                 .catch(error => {
                     console.error("Error verificando autenticación:", error);
