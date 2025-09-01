@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0] - 2025-08-31
+
+### Fixed
+- Corregido problema crítico de autenticación que causaba la desconexión de usuarios
+- Mejorado el sistema de persistencia de sesiones para mayor robustez
+- Optimizado el manejo de credenciales en toda la aplicación
+- Solucionado error que mostraba "Sesión no iniciada" incorrectamente
+- Implementada redirección automática a la página de login
+
+### Added
+- Nuevo logging detallado para facilitar la depuración de problemas de autenticación
+- Pantalla de redirección mejorada con animación de carga
+
 ## [1.0.0] - 2025-08-31
 
 ### Added

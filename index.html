@@ -2,56 +2,54 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="js/themes.css">
+    <title>Redireccionando...</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg-secondary); }
-        .login-container { background: var(--bg-primary); padding: 40px; border-radius: 8px; box-shadow: var(--card-shadow); text-align: center; width: 300px; }
-        h1 { margin-top: 0; color: var(--text-primary); }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
-        input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; background-color: var(--bg-primary); color: var(--text-primary); }
-        button { width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: var(--accent-color); color: white; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: var(--accent-hover); }
-        #error-message { color: var(--danger-color); margin-top: 10px; min-height: 1em; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f3f4f6;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Iniciar Sesión</h1>
-        <form id="login-form">
-            <div class="input-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Ingresar</button>
-        </form>
-        <p id="error-message"></p>
+    <div class="container">
+        <div class="loader"></div>
+        <div>Redireccionando a la página de inicio de sesión...</div>
     </div>
-
-    <script>
-      const form = document.getElementById('login-form');
-      const errorMessage = document.getElementById('error-message');
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        errorMessage.textContent = '';
-        const email = form.email.value;
-        const password = form.password.value;
-
-        const result = await window.electronAPI.login({ email, password });
-
-        if (!result.success) {
-          errorMessage.textContent = result.message;
-        }
-      });
-    </script>
     
-    <!-- Script para gestionar el tema claro/oscuro -->
-    <script src="js/themeHandler.js"></script>
+    <script>
+    // Redirigir automáticamente a login.html, que es la página real de inicio de sesión
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.electronAPI.navigate('login.html');
+        }, 800); // Pequeña espera para mostrar el mensaje
+    });
+    </script>
 </body>
 </html>
