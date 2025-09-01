@@ -52,19 +52,30 @@ let printWindow;
 let currentDetailsId = null; // Variable para guardar el ID para la ventana de detalles
 let currentEditId = null; // Variable para guardar el ID para la ventana de edición // Variable para guardar el ID para la ventana de detalles
 
-function createWindow () {
+function createWindow() {
   win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1400,
+    height: 900,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
+      nodeIntegration: false, // Para seguridad
       contextIsolation: true,
       webSecurity: false // Deshabilita CORS para permitir comunicación con el hosting
     }
   });
 
+  // Siempre iniciamos en la página de login
+  console.log('Iniciando aplicación en pantalla de login');
   win.loadFile('login.html');
+  
+  /* 
+  // Verificación de sesión previa desactivada - siempre ir a login primero
+  const userData = userPrefs.get('userData');
+  
+  if (userData && (userData.authenticated === true || userData.id)) {
+    console.log('Sesión activa encontrada, pero iniciamos en login de todos modos');
+  }
+  */
 }
 
 // --- Lógica de Autenticación con API Externa ---

@@ -1,12 +1,14 @@
 {
   "name": "nueva-carpeta",
   "version": "1.1.0",
-  "description": "",
+  "description": "Sistema de gestión para habilitaciones de transporte del Municipio de Lanús",
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox --disable-gpu-sandbox",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dist": "npx electron-builder",
+    "dist": "npx electron-builder --publish never --win nsis:x64",
+    "pack": "npx electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps",
     "api": "npx php-server -S localhost -p 4000 -t ."
   },
   "keywords": [],
@@ -23,9 +25,22 @@
     "appId": "com.transportelanus.habilitaciones",
     "productName": "Habilitaciones Lanus",
     "win": {
-      "certificateSubjectName": "",
-      "certificateSha1": ""
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "${productName}-${version}-Setup.${ext}"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "uninstallDisplayName": "${productName}",
+      "createDesktopShortcut": true,
+      "installerIcon": "publico/logo.svg"
+    },
+    "asar": true,
     "publish": [
       {
         "provider": "github",
